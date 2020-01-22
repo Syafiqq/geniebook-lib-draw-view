@@ -9,10 +9,10 @@ open class SingleShapeMode(override val mode: DrawingMode): IMode {
     var color = 0
     var strokeWidth = 0F
 
-    private var endX = 0F
-    private var endY = 0F
-    private var initX = 0F
-    private var initY = 0F
+    protected var endX = 0F
+    protected var endY = 0F
+    protected var initX = 0F
+    protected var initY = 0F
 
     fun onFingerDown(x: Float, y: Float) {
         initialPos(x, y)
@@ -42,7 +42,7 @@ open class SingleShapeMode(override val mode: DrawingMode): IMode {
         paint.color = color
     }
 
-    fun onDraw(canvas: Canvas, paint: Paint) {
+    open fun onDraw(canvas: Canvas, paint: Paint) {
         decorate(paint)
     }
 }
