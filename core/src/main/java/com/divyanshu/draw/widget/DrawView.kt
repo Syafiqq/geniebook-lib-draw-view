@@ -8,10 +8,7 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import com.divyanshu.draw.widget.container.EraserContainer
-import com.divyanshu.draw.widget.container.ImageContainer
-import com.divyanshu.draw.widget.container.PenContainer
-import com.divyanshu.draw.widget.container.TextContainer
+import com.divyanshu.draw.widget.container.*
 import com.divyanshu.draw.widget.contract.DrawingMode
 import com.divyanshu.draw.widget.contract.ICanvas
 import com.divyanshu.draw.widget.contract.IDrawingContainer
@@ -32,6 +29,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
     private val eraserPath = EraserContainer(context, this)
     private val textContainer = TextContainer(context, this)
     private val imageContainer = ImageContainer(context, this)
+    private val shapeLineContainer = ShapeLineContainer(context, this)
 
     private var drawingTool: IDrawingContainer<*>? = null
     private var _drawingMode: DrawingMode? = null
@@ -48,6 +46,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                 DrawingMode.ERASE -> eraserPath
                 DrawingMode.TEXT -> textContainer
                 DrawingMode.IMAGE -> imageContainer
+                DrawingMode.SHAPE_LINE -> shapeLineContainer
                 else -> null
             }
             drawingTool?.attachDrawingTool()
