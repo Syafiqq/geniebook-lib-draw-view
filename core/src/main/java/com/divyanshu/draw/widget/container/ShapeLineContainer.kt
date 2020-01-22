@@ -69,7 +69,7 @@ class ShapeLineContainer(override val context: Context, override val drawing: IC
         if (draw != null || event.pointerCount > 1) return
 
         attachDrawingTool()
-        draw = LineMode(DrawingMode.LINE).apply {
+        draw = LineMode(DrawingMode.SHAPE_LINE).apply {
             color = this@ShapeLineContainer.color
             strokeWidth = this@ShapeLineContainer.strokeWidth
             onFingerDown(x, y)

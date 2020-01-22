@@ -119,6 +119,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                 DrawingMode.ERASE -> eraserPath.onDraw(canvas, it)
                 DrawingMode.TEXT -> textContainer.onDraw(canvas, it)
                 DrawingMode.IMAGE -> imageContainer.onDraw(canvas, it)
+                DrawingMode.SHAPE_LINE -> shapeLineContainer.onDraw(canvas, it)
                 else -> {}
             }
         }
