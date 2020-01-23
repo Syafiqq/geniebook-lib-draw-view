@@ -29,3 +29,17 @@ fun PointF.calculatePoint(p: PointF, dt: Float, r: Float, m: Float) {
         y = p.y + (dt * m / r)
     }
 }
+
+/**
+ * https://math.stackexchange.com/questions/656500/given-a-point-slope-and-a-distance-along-that-slope-easily-find-a-second-p
+ * https://math.stackexchange.com/a/656512
+ * */
+fun PointF.calculatePoint(x: Float, y: Float, dt: Float, r: Float, m: Float) {
+    if(r == Float.POSITIVE_INFINITY) {
+        this.x = x
+        this.y = y + dt
+    } else {
+        this.x = x + (dt / r)
+        this.y = y + (dt * m / r)
+    }
+}
