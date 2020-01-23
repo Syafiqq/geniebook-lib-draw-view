@@ -6,13 +6,10 @@ import android.graphics.Paint
 import android.view.MotionEvent
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
-import com.divyanshu.draw.widget.contract.ICanvas
-import com.divyanshu.draw.widget.contract.IDrawingContainer
-import com.divyanshu.draw.widget.contract.IMode
-import com.divyanshu.draw.widget.contract.IPaint
-import com.divyanshu.draw.widget.mode.SingleShapeMode
+import com.divyanshu.draw.widget.contract.*
+import com.divyanshu.draw.widget.mode.*
 
-abstract class GenericShapeContainer<T: SingleShapeMode>(override val context: Context, override val drawing: ICanvas) : IDrawingContainer<T>, IPaint {
+sealed class GenericShapeContainer<T: SingleShapeMode>(override val context: Context, override val drawing: ICanvas) : IDrawingContainer<T>, IPaint {
     override var draw: T? = null
 
     private val listener by lazy<InteractionListener> {
@@ -54,14 +51,6 @@ abstract class GenericShapeContainer<T: SingleShapeMode>(override val context: C
 
     init {
         resetPaint()
-    }
-
-    private fun resetPaint() {
-        with(paint) {
-            style = Paint.Style.STROKE
-            strokeJoin = Paint.Join.ROUND
-            strokeCap = Paint.Cap.ROUND
-        }
     }
 
     override fun onDraw(canvas: Canvas, draw: IMode) {
@@ -119,8 +108,39 @@ abstract class GenericShapeContainer<T: SingleShapeMode>(override val context: C
 
     override fun detachDrawingTool() = listener.detachComponent()
 
+    private fun resetPaint() {
+        with(paint) {
+            style = Paint.Style.STROKE
+            strokeJoin = Paint.Join.ROUND
+            strokeCap = Paint.Cap.ROUND
+        }
+    }
+
     interface InteractionListener {
         fun attachComponent(paint: IPaint)
         fun detachComponent()
     }
+}
+
+class ShapeLineContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<LineMode>(context, drawing) {
+    override fun instantiateDraw() = LineMode(DrawingMode.SHAPE_LINE)
+}
+
+class SingleHeadArrowContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<SingleHeadArrowMode>(context, drawing) {
+    override fun instantiateDraw() = SingleHeadArrowMode(DrawingMode.SHAPE_SINGLE_ARROW)
+}
+
+class DoubleHeadArrowContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<DoubleHeadArrowMode>(context, drawing) {
+    override fun instantiateDraw() = DoubleHeadArrowMode(DrawingMode.SHAPE_DOUBLE_ARROW)
+}
+
+class OutlineRectangleContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<OutlineRectangleMode>(context, drawing) {
+    override fun instantiateDraw() = OutlineRectangleMode(DrawingMode.SHAPE_OUTLINE_RECTANGLE)
+}
+
+class FilledRectangleContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<FilledRectangleMode>(context, drawing) {
+    override fun instantiateDraw() = FilledRectangleMode(DrawingMode.SHAPE_FILLED_RECTANGLE)
+}
+class OutlineEllipseContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<OutlineEllipseMode>(context, drawing) {
+    override fun instantiateDraw() = OutlineEllipseMode(DrawingMode.SHAPE_OUTLINE_ELLIPSE)
 }
