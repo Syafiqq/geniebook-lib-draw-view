@@ -21,6 +21,11 @@ fun PointF.arrowHeadPivot(x1: Float, y1: Float, x2: Float, y2: Float, dt: Float,
  * https://math.stackexchange.com/a/656512
  * */
 fun PointF.calculatePoint(p: PointF, dt: Float, r: Float, m: Float) {
-    x = p.x + (dt / r)
-    y = p.y + (dt * m / r)
+    if(r == Float.POSITIVE_INFINITY) {
+        x = p.x
+        y = p.y + dt
+    } else {
+        x = p.x + (dt / r)
+        y = p.y + (dt * m / r)
+    }
 }
