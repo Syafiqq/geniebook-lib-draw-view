@@ -6,7 +6,6 @@ import android.view.MotionEvent
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import com.divyanshu.draw.widget.contract.*
-import com.divyanshu.draw.widget.mode.LineMode
 import com.divyanshu.draw.widget.mode.SingleShapeMode
 
 abstract class GenericOutlineShapeContainer<T: SingleShapeMode>(override val drawing: ICanvas) : IDrawingContainer<T>, IPaint {
@@ -49,7 +48,7 @@ abstract class GenericOutlineShapeContainer<T: SingleShapeMode>(override val dra
     }
 
     override fun onDraw(canvas: Canvas, draw: IMode) {
-        if (draw !is LineMode) return
+        if (draw !is SingleShapeMode) return
         draw.onDraw(canvas, paint)
     }
 
