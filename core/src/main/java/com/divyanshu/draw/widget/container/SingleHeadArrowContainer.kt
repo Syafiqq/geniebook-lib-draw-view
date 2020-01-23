@@ -6,7 +6,7 @@ import com.divyanshu.draw.widget.contract.ICanvas
 import com.divyanshu.draw.widget.contract.IPaint
 import com.divyanshu.draw.widget.mode.SingleHeadArrowMode
 
-class SingleHeadArrowContainer(override val context: Context, override val drawing: ICanvas) : GenericOutlineShapeContainer<SingleHeadArrowMode>(drawing) {
+class SingleHeadArrowContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<SingleHeadArrowMode>(drawing) {
     private val listener: InteractionListener
 
     init {

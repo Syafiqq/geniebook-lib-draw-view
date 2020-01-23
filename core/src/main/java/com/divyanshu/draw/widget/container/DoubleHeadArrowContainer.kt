@@ -6,7 +6,7 @@ import com.divyanshu.draw.widget.contract.ICanvas
 import com.divyanshu.draw.widget.contract.IPaint
 import com.divyanshu.draw.widget.mode.DoubleHeadArrowMode
 
-class DoubleHeadArrowContainer(override val context: Context, override val drawing: ICanvas) : GenericOutlineShapeContainer<DoubleHeadArrowMode>(drawing) {
+class DoubleHeadArrowContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<DoubleHeadArrowMode>(drawing) {
     private val listener: InteractionListener
 
     init {

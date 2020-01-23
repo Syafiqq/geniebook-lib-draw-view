@@ -6,7 +6,7 @@ import com.divyanshu.draw.widget.contract.ICanvas
 import com.divyanshu.draw.widget.contract.IPaint
 import com.divyanshu.draw.widget.mode.OutlineRectangleMode
 
-class OutlineRectangleContainer(override val context: Context, override val drawing: ICanvas) : GenericOutlineShapeContainer<OutlineRectangleMode>(drawing) {
+class OutlineRectangleContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<OutlineRectangleMode>(drawing) {
     private val listener: InteractionListener
 
     init {

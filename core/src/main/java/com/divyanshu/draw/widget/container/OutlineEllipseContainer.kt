@@ -6,7 +6,7 @@ import com.divyanshu.draw.widget.contract.ICanvas
 import com.divyanshu.draw.widget.contract.IPaint
 import com.divyanshu.draw.widget.mode.OutlineEllipseMode
 
-class OutlineEllipseContainer(override val context: Context, override val drawing: ICanvas) : GenericOutlineShapeContainer<OutlineEllipseMode>(drawing) {
+class OutlineEllipseContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<OutlineEllipseMode>(drawing) {
     private val listener: InteractionListener
 
     init {

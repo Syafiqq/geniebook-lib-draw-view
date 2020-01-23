@@ -11,7 +11,7 @@ import com.divyanshu.draw.widget.contract.IMode
 import com.divyanshu.draw.widget.contract.IPaint
 import com.divyanshu.draw.widget.mode.SingleShapeMode
 
-abstract class GenericOutlineShapeContainer<T: SingleShapeMode>(override val drawing: ICanvas) : IDrawingContainer<T>, IPaint {
+abstract class GenericShapeContainer<T: SingleShapeMode>(override val drawing: ICanvas) : IDrawingContainer<T>, IPaint {
     override var draw: T? = null
 
     private var _color = 0
@@ -69,8 +69,8 @@ abstract class GenericOutlineShapeContainer<T: SingleShapeMode>(override val dra
         resetPaint()
         attachDrawingTool()
         draw = instantiateDraw().apply {
-            color = this@GenericOutlineShapeContainer.color
-            strokeWidth = this@GenericOutlineShapeContainer.strokeWidth
+            color = this@GenericShapeContainer.color
+            strokeWidth = this@GenericShapeContainer.strokeWidth
             onFingerDown(x, y)
         }
         drawing.requestInvalidate()
