@@ -33,6 +33,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
     private val singleArrowContainer = SingleHeadArrowContainer(context, this)
     private val doubleArrowContainer = DoubleHeadArrowContainer(context, this)
     private val outlineRectContainer = OutlineRectangleContainer(context, this)
+    private val outlineEllipseContainer = OutlineEllipseContainer(context, this)
 
     private var drawingTool: IDrawingContainer<*>? = null
     private var _drawingMode: DrawingMode? = null
@@ -53,6 +54,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                 DrawingMode.SHAPE_SINGLE_ARROW -> singleArrowContainer
                 DrawingMode.SHAPE_DOUBLE_ARROW -> doubleArrowContainer
                 DrawingMode.SHAPE_OUTLINE_RECTANGLE -> outlineRectContainer
+                DrawingMode.SHAPE_OUTLINE_ELLIPSE -> outlineEllipseContainer
                 else -> null
             }
             drawingTool?.attachDrawingTool()
@@ -129,6 +131,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                 DrawingMode.SHAPE_SINGLE_ARROW -> singleArrowContainer.onDraw(canvas, it)
                 DrawingMode.SHAPE_DOUBLE_ARROW -> doubleArrowContainer.onDraw(canvas, it)
                 DrawingMode.SHAPE_OUTLINE_RECTANGLE -> outlineRectContainer.onDraw(canvas, it)
+                DrawingMode.SHAPE_OUTLINE_ELLIPSE -> outlineEllipseContainer.onDraw(canvas, it)
                 else -> {}
             }
         }
