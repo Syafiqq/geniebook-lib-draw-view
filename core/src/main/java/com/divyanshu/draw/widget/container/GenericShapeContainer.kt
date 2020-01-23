@@ -1,5 +1,6 @@
 package com.divyanshu.draw.widget.container
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.view.MotionEvent
@@ -11,8 +12,17 @@ import com.divyanshu.draw.widget.contract.IMode
 import com.divyanshu.draw.widget.contract.IPaint
 import com.divyanshu.draw.widget.mode.SingleShapeMode
 
-abstract class GenericShapeContainer<T: SingleShapeMode>(override val drawing: ICanvas) : IDrawingContainer<T>, IPaint {
+abstract class GenericShapeContainer<T: SingleShapeMode>(override val context: Context, override val drawing: ICanvas) : IDrawingContainer<T>, IPaint {
     override var draw: T? = null
+
+    private val listener by lazy<InteractionListener> {
+        val ctx = context
+        if (ctx !is InteractionListener) {
+            throw ClassCastException("context must implement InteractionListener")
+        }
+
+        ctx
+    }
 
     private var _color = 0
     private var _strokeWidth = 0F
@@ -103,5 +113,14 @@ abstract class GenericShapeContainer<T: SingleShapeMode>(override val drawing: I
 
         drawing.requestInvalidate()
         return true
+    }
+
+    override fun attachDrawingTool() = listener.attachComponent(this)
+
+    override fun detachDrawingTool() = listener.detachComponent()
+
+    interface InteractionListener {
+        fun attachComponent(paint: IPaint)
+        fun detachComponent()
     }
 }
