@@ -1,29 +1,23 @@
 package com.divyanshu.draw.widget.mode
 
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.PointF
+import android.graphics.*
 import com.divyanshu.draw.ext.android.graphics.arrowHeadPivot
 import com.divyanshu.draw.ext.android.graphics.calculatePoint
 import com.divyanshu.draw.ext.android.graphics.centerPoint
 import com.divyanshu.draw.util.MathUtil
 import com.divyanshu.draw.widget.contract.DrawingMode
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 class SingleHeadArrowMode(override val mode: DrawingMode): SingleShapeMode(mode) {
     private val paint = Paint()
     private val endPivot = PointF()
     private val endPivot1 = PointF()
     private val endPivot2 = PointF()
+    private val endPath = Path()
 
     init {
         with(paint) {
-            style = Paint.Style.FILL_AND_STROKE
-            strokeJoin = Paint.Join.ROUND
-            strokeCap = Paint.Cap.ROUND
-            color = Color.RED
+            style = Paint.Style.FILL
+            color = Color.BLACK
         }
     }
 
@@ -44,25 +38,51 @@ class SingleHeadArrowMode(override val mode: DrawingMode): SingleShapeMode(mode)
 
     private fun defineArrow() {
         val d = MathUtil.distanceTwoPoint(initX, initY, endX, endY)
-        val pm = MathUtil.perpendicularSlope(MathUtil.slopeTwoPoint(initX, initY, endX, endY))
-        val pr = sqrt(1F + pm.pow(2))
+        val m = MathUtil.slopeTwoPoint(initX, initY, endX, endY)
+        val pm = MathUtil.perpendicularSlope(m)
+        val pr = MathUtil.calculateR(pm)
 
-        if(strokeWidth * 2 > d) {
+        if(strokeWidth * 4 > d) {
             endPivot.centerPoint(initX, initY, endX, endY)
-            endPivot1.calculatePoint(endPivot, strokeWidth, pr, pm)
-            endPivot2.calculatePoint(endPivot, -strokeWidth, pr, pm)
+            endPivot1.calculatePoint(endPivot, strokeWidth * 2, pr, pm)
+            endPivot2.calculatePoint(endPivot, -strokeWidth * 2, pr, pm)
         } else {
-            endPivot.arrowHeadPivot(initX, initY, endX, endY, strokeWidth, d)
-            endPivot1.calculatePoint(endPivot, strokeWidth, pr, pm)
-            endPivot2.calculatePoint(endPivot, -strokeWidth, pr, pm)
+            endPivot.arrowHeadPivot(initX, initY, endX, endY, strokeWidth * 2, d)
+            endPivot1.calculatePoint(endPivot, strokeWidth * 2, pr, pm)
+            endPivot2.calculatePoint(endPivot, -strokeWidth * 2, pr, pm)
+            endPivot.calculatePoint(endPivot, strokeWidth * 4, MathUtil.calculateR(m), m)
         }
+
+        endPath.composePath(endPivot1, endPivot2, endPivot)
+    }
+
+    override fun decorate(paint: Paint) {
+        super.decorate(paint)
+        this.paint.color = color
+        this.paint.strokeWidth = strokeWidth
     }
 
     override fun onDraw(canvas: Canvas, paint: Paint) {
         super.onDraw(canvas, paint)
         canvas.drawLine(initX, initY, endX, endY, paint)
-        canvas.drawCircle(endPivot.x, endPivot.y, 3F, this.paint)
-        canvas.drawCircle(endPivot1.x, endPivot1.y, 3F, this.paint)
-        canvas.drawCircle(endPivot2.x, endPivot2.y, 3F, this.paint)
+        canvas.drawPath(endPath, this.paint)
     }
+}
+
+private fun Path.composePath(p1: PointF, p2: PointF, endX: Float, endY: Float) {
+    reset()
+    moveTo(endX, endY)
+    lineTo(p1.x, p1.y)
+    lineTo(p2.x, p2.y)
+    lineTo(endX, endY)
+    close()
+}
+
+private fun Path.composePath(p1: PointF, p2: PointF, p3: PointF) {
+    reset()
+    moveTo(p3.x, p3.y)
+    lineTo(p1.x, p1.y)
+    lineTo(p2.x, p2.y)
+    lineTo(p3.x, p3.y)
+    close()
 }
