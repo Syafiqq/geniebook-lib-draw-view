@@ -4,6 +4,9 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
+import com.divyanshu.draw.ext.android.graphics.arrowHeadPivot
+import com.divyanshu.draw.ext.android.graphics.calculatePoint
+import com.divyanshu.draw.ext.android.graphics.centerPoint
 import com.divyanshu.draw.util.MathUtil
 import com.divyanshu.draw.widget.contract.DrawingMode
 import kotlin.math.pow
@@ -14,9 +17,6 @@ class SingleHeadArrowMode(override val mode: DrawingMode): SingleShapeMode(mode)
     private val endPivot = PointF()
     private val endPivot1 = PointF()
     private val endPivot2 = PointF()
-
-    var d = 0F
-    var m = 0F
 
     init {
         with(paint) {
@@ -42,44 +42,20 @@ class SingleHeadArrowMode(override val mode: DrawingMode): SingleShapeMode(mode)
         defineArrow()
     }
 
-    /**
-     * https://math.stackexchange.com/questions/175896/finding-a-point-along-a-line-a-certain-distance-away-from-another-point
-     * https://math.stackexchange.com/questions/656500/given-a-point-slope-and-a-distance-along-that-slope-easily-find-a-second-p
-     * */
     private fun defineArrow() {
-        calculateDistance()
-        calculateSlope()
-        // https://www.varsitytutors.com/act_math-help/how-to-find-the-slope-of-a-perpendicular-line
-        val pm = -1F/m
+        val d = MathUtil.distanceTwoPoint(initX, initY, endX, endY)
+        val pm = MathUtil.perpendicularSlope(MathUtil.slopeTwoPoint(initX, initY, endX, endY))
         val pr = sqrt(1F + pm.pow(2))
 
         if(strokeWidth * 2 > d) {
-            val centerX = (initX + endX) / 2F
-            val centerY = (initY + endY) / 2F
-            endPivot.x = centerX
-            endPivot.y = centerY
-            endPivot1.x = centerX + (strokeWidth / pr)
-            endPivot1.y = centerY + (strokeWidth * pm / pr)
-            endPivot2.x = centerX + (-strokeWidth / pr)
-            endPivot2.y = centerY + (-strokeWidth * pm / pr)
+            endPivot.centerPoint(initX, initY, endX, endY)
+            endPivot1.calculatePoint(endPivot, strokeWidth, pr, pm)
+            endPivot2.calculatePoint(endPivot, -strokeWidth, pr, pm)
         } else {
-            val centerX = endX - (strokeWidth * (endX - initX) / d)
-            val centerY = endY - (strokeWidth * (endY - initY) / d)
-            endPivot.x = centerX
-            endPivot.y = centerY
-            endPivot1.x = centerX + (strokeWidth / pr)
-            endPivot1.y = centerY + (strokeWidth * pm / pr)
-            endPivot2.x = centerX + (-strokeWidth / pr)
-            endPivot2.y = centerY + (-strokeWidth * pm / pr)
+            endPivot.arrowHeadPivot(initX, initY, endX, endY, strokeWidth, d)
+            endPivot1.calculatePoint(endPivot, strokeWidth, pr, pm)
+            endPivot2.calculatePoint(endPivot, -strokeWidth, pr, pm)
         }
-    }
-
-    private fun calculateDistance() {
-        d = MathUtil.distanceTwoPoint(initX, initY, endX, endY)
-    }
-
-    private fun calculateSlope() {
-        m = (endY - initY) / (endX - initX)
     }
 
     override fun onDraw(canvas: Canvas, paint: Paint) {

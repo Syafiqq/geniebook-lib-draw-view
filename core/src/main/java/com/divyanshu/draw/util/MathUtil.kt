@@ -11,4 +11,13 @@ object MathUtil {
     fun distanceTwoPoint(x1: Float, y1: Float, x2: Float, y2: Float): Float{
         return sqrt((x2 - x1).pow(2F) + (y2 - y1).pow(2F))
     }
+
+    fun slopeTwoPoint(x1: Float, y1: Float, x2: Float, y2: Float): Float{
+        return (y2 - y1) / (x2 - x1)
+    }
+
+    /**
+     * https://www.varsitytutors.com/act_math-help/how-to-find-the-slope-of-a-perpendicular-line
+     * */
+    fun perpendicularSlope(m: Float): Float = -1F/m
 }

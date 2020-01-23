@@ -41,7 +41,7 @@ open class SingleShapeMode(override val mode: DrawingMode): IMode {
         initY = y
     }
 
-    protected fun decorate(paint: Paint) {
+    protected open fun decorate(paint: Paint) {
         paint.strokeWidth = strokeWidth
         paint.color = color
     }
