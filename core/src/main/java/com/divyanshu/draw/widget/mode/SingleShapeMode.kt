@@ -18,16 +18,16 @@ open class SingleShapeMode(override val mode: DrawingMode): IMode {
     protected var initY = 0F
         private set
 
-    fun onFingerDown(x: Float, y: Float) {
+    open fun onFingerDown(x: Float, y: Float) {
         initialPos(x, y)
         currentPos(x, y)
     }
 
-    fun onFingerMove(x: Float, y: Float) {
+    open fun onFingerMove(x: Float, y: Float) {
         currentPos(x, y)
     }
 
-    fun onFingerUp(x: Float, y: Float) {
+    open fun onFingerUp(x: Float, y: Float) {
         currentPos(x, y)
     }
 
