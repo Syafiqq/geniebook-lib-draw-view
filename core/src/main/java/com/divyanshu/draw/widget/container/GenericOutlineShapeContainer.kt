@@ -1,6 +1,5 @@
 package com.divyanshu.draw.widget.container
 
-import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.view.MotionEvent
@@ -10,10 +9,8 @@ import com.divyanshu.draw.widget.contract.*
 import com.divyanshu.draw.widget.mode.LineMode
 import com.divyanshu.draw.widget.mode.SingleShapeMode
 
-abstract class GenericOutlineShapeContainer<T: SingleShapeMode>(override val context: Context, override val drawing: ICanvas) : IDrawingContainer<T>, IPaint {
+abstract class GenericOutlineShapeContainer<T: SingleShapeMode>(override val drawing: ICanvas) : IDrawingContainer<T>, IPaint {
     override var draw: T? = null
-
-    private val listener: InteractionListener
 
     private var _color = 0
     private var _strokeWidth = 0F
@@ -44,12 +41,6 @@ abstract class GenericOutlineShapeContainer<T: SingleShapeMode>(override val con
     override var textSize = 0F
 
     init {
-        val ctx = this.context
-        if (ctx !is InteractionListener) {
-            throw ClassCastException("context must implement InteractionListener")
-        }
-
-        listener = ctx
         with(paint) {
             style = Paint.Style.STROKE
             strokeJoin = Paint.Join.ROUND
@@ -80,14 +71,6 @@ abstract class GenericOutlineShapeContainer<T: SingleShapeMode>(override val con
 
     abstract fun instantiateDraw(): T
 
-    override fun attachDrawingTool() {
-        listener.attachComponent(this)
-    }
-
-    override fun detachDrawingTool() {
-        listener.detachComponent()
-    }
-
     override fun destroyDrawingObject() {
         draw = null
         detachDrawingTool()
@@ -113,10 +96,5 @@ abstract class GenericOutlineShapeContainer<T: SingleShapeMode>(override val con
 
         drawing.requestInvalidate()
         return true
-    }
-
-    interface InteractionListener {
-        fun attachComponent(paint: IPaint)
-        fun detachComponent()
     }
 }
