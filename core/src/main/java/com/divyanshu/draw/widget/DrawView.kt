@@ -31,6 +31,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
     private val imageContainer = ImageContainer(context, this)
     private val shapeLineContainer = ShapeLineContainer(context, this)
     private val singleArrowContainer = SingleHeadArrowContainer(context, this)
+    private val doubleArrowContainer = DoubleHeadArrowContainer(context, this)
 
     private var drawingTool: IDrawingContainer<*>? = null
     private var _drawingMode: DrawingMode? = null
@@ -49,6 +50,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                 DrawingMode.IMAGE -> imageContainer
                 DrawingMode.SHAPE_LINE -> shapeLineContainer
                 DrawingMode.SHAPE_SINGLE_ARROW -> singleArrowContainer
+                DrawingMode.SHAPE_DOUBLE_ARROW -> doubleArrowContainer
                 else -> null
             }
             drawingTool?.attachDrawingTool()
@@ -123,6 +125,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                 DrawingMode.IMAGE -> imageContainer.onDraw(canvas, it)
                 DrawingMode.SHAPE_LINE -> shapeLineContainer.onDraw(canvas, it)
                 DrawingMode.SHAPE_SINGLE_ARROW -> singleArrowContainer.onDraw(canvas, it)
+                DrawingMode.SHAPE_DOUBLE_ARROW -> doubleArrowContainer.onDraw(canvas, it)
                 else -> {}
             }
         }
