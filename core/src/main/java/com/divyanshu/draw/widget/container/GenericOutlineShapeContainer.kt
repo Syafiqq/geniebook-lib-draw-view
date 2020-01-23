@@ -5,7 +5,10 @@ import android.graphics.Paint
 import android.view.MotionEvent
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
-import com.divyanshu.draw.widget.contract.*
+import com.divyanshu.draw.widget.contract.ICanvas
+import com.divyanshu.draw.widget.contract.IDrawingContainer
+import com.divyanshu.draw.widget.contract.IMode
+import com.divyanshu.draw.widget.contract.IPaint
 import com.divyanshu.draw.widget.mode.SingleShapeMode
 
 abstract class GenericOutlineShapeContainer<T: SingleShapeMode>(override val drawing: ICanvas) : IDrawingContainer<T>, IPaint {
@@ -40,6 +43,10 @@ abstract class GenericOutlineShapeContainer<T: SingleShapeMode>(override val dra
     override var textSize = 0F
 
     init {
+        resetPaint()
+    }
+
+    private fun resetPaint() {
         with(paint) {
             style = Paint.Style.STROKE
             strokeJoin = Paint.Join.ROUND
@@ -59,6 +66,7 @@ abstract class GenericOutlineShapeContainer<T: SingleShapeMode>(override val dra
     override fun createDrawingObject(x: Float, y: Float, event: MotionEvent) {
         if (draw != null || event.pointerCount > 1) return
 
+        resetPaint()
         attachDrawingTool()
         draw = instantiateDraw().apply {
             color = this@GenericOutlineShapeContainer.color
