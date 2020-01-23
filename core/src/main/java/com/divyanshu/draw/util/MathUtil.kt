@@ -1,6 +1,7 @@
 package com.divyanshu.draw.util
 
 import kotlin.math.pow
+import kotlin.math.sign
 import kotlin.math.sqrt
 
 object MathUtil {
@@ -20,4 +21,11 @@ object MathUtil {
      * https://www.varsitytutors.com/act_math-help/how-to-find-the-slope-of-a-perpendicular-line
      * */
     fun perpendicularSlope(m: Float): Float = -1F/m
+
+    /**
+     * https://www.varsitytutors.com/act_math-help/how-to-find-the-slope-of-a-perpendicular-line
+     * */
+    fun calculateR(m: Float): Float = sqrt(1F + m.pow(2))
+
+    fun positiveSignum(v: Float): Int = if(sign(v) >= 0) 1 else -1
 }
