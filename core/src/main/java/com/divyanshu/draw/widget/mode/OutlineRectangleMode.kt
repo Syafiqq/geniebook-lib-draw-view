@@ -4,7 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import com.divyanshu.draw.widget.contract.DrawingMode
 
-class OutlineRectangleMode(override val mode: DrawingMode): SingleShapeMode(mode) {
+open class OutlineRectangleMode(override val mode: DrawingMode): SingleShapeMode(mode) {
     override fun decorate(paint: Paint) {
         super.decorate(paint)
         paint.strokeCap = Paint.Cap.SQUARE
