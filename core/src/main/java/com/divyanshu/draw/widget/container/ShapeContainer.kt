@@ -9,7 +9,7 @@ import androidx.core.graphics.ColorUtils
 import com.divyanshu.draw.widget.contract.*
 import com.divyanshu.draw.widget.mode.*
 
-sealed class GenericShapeContainer<T: SingleShapeMode>(override val context: Context, override val drawing: ICanvas) : IDrawingContainer<T>, IPaint {
+sealed class ShapeContainer<T: SingleShapeMode>(override val context: Context, override val drawing: ICanvas) : IDrawingContainer<T>, IPaint {
     override var draw: T? = null
 
     private val listener by lazy<InteractionListener> {
@@ -68,8 +68,8 @@ sealed class GenericShapeContainer<T: SingleShapeMode>(override val context: Con
         resetPaint()
         attachDrawingTool()
         draw = instantiateDraw().apply {
-            color = this@GenericShapeContainer.color
-            strokeWidth = this@GenericShapeContainer.strokeWidth
+            color = this@ShapeContainer.color
+            strokeWidth = this@ShapeContainer.strokeWidth
             onFingerDown(x, y)
         }
         drawing.requestInvalidate()
@@ -122,25 +122,30 @@ sealed class GenericShapeContainer<T: SingleShapeMode>(override val context: Con
     }
 }
 
-class ShapeLineContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<LineMode>(context, drawing) {
+class ShapeLineContainer(override val context: Context, override val drawing: ICanvas) : ShapeContainer<LineMode>(context, drawing) {
     override fun instantiateDraw() = LineMode(DrawingMode.SHAPE_LINE)
 }
 
-class SingleHeadArrowContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<SingleHeadArrowMode>(context, drawing) {
+class SingleHeadArrowContainer(override val context: Context, override val drawing: ICanvas) : ShapeContainer<SingleHeadArrowMode>(context, drawing) {
     override fun instantiateDraw() = SingleHeadArrowMode(DrawingMode.SHAPE_SINGLE_ARROW)
 }
 
-class DoubleHeadArrowContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<DoubleHeadArrowMode>(context, drawing) {
+class DoubleHeadArrowContainer(override val context: Context, override val drawing: ICanvas) : ShapeContainer<DoubleHeadArrowMode>(context, drawing) {
     override fun instantiateDraw() = DoubleHeadArrowMode(DrawingMode.SHAPE_DOUBLE_ARROW)
 }
 
-class OutlineRectangleContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<OutlineRectangleMode>(context, drawing) {
+class OutlineRectangleContainer(override val context: Context, override val drawing: ICanvas) : ShapeContainer<OutlineRectangleMode>(context, drawing) {
     override fun instantiateDraw() = OutlineRectangleMode(DrawingMode.SHAPE_OUTLINE_RECTANGLE)
 }
 
-class FilledRectangleContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<FilledRectangleMode>(context, drawing) {
+class FilledRectangleContainer(override val context: Context, override val drawing: ICanvas) : ShapeContainer<FilledRectangleMode>(context, drawing) {
     override fun instantiateDraw() = FilledRectangleMode(DrawingMode.SHAPE_FILLED_RECTANGLE)
 }
-class OutlineEllipseContainer(override val context: Context, override val drawing: ICanvas) : GenericShapeContainer<OutlineEllipseMode>(context, drawing) {
+
+class OutlineEllipseContainer(override val context: Context, override val drawing: ICanvas) : ShapeContainer<OutlineEllipseMode>(context, drawing) {
     override fun instantiateDraw() = OutlineEllipseMode(DrawingMode.SHAPE_OUTLINE_ELLIPSE)
+}
+
+class FilledEllipseContainer(override val context: Context, override val drawing: ICanvas) : ShapeContainer<FilledEllipseMode>(context, drawing) {
+    override fun instantiateDraw() = FilledEllipseMode(DrawingMode.SHAPE_FILLED_ELLIPSE)
 }
