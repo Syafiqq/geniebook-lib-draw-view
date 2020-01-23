@@ -5,7 +5,7 @@ import android.graphics.Paint
 import android.graphics.RectF
 import com.divyanshu.draw.widget.contract.DrawingMode
 
-class OutlineEllipseMode(override val mode: DrawingMode): SingleShapeMode(mode) {
+open class OutlineEllipseMode(override val mode: DrawingMode): SingleShapeMode(mode) {
     val rect = RectF()
 
     override fun onFingerDown(x: Float, y: Float) {
