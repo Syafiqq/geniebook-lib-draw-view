@@ -4,6 +4,7 @@ import android.graphics.*
 import com.divyanshu.draw.ext.android.graphics.arrowHeadPivot
 import com.divyanshu.draw.ext.android.graphics.calculatePoint
 import com.divyanshu.draw.ext.android.graphics.centerPoint
+import com.divyanshu.draw.ext.android.graphics.composePath
 import com.divyanshu.draw.util.MathUtil
 import com.divyanshu.draw.widget.contract.DrawingMode
 
@@ -68,22 +69,4 @@ class SingleHeadArrowMode(override val mode: DrawingMode): SingleShapeMode(mode)
         canvas.drawLine(initX, initY, endX, endY, paint)
         canvas.drawPath(endPath, this.paint)
     }
-}
-
-private fun Path.composePath(p1: PointF, p2: PointF, endX: Float, endY: Float) {
-    reset()
-    moveTo(endX, endY)
-    lineTo(p1.x, p1.y)
-    lineTo(p2.x, p2.y)
-    lineTo(endX, endY)
-    close()
-}
-
-private fun Path.composePath(p1: PointF, p2: PointF, p3: PointF) {
-    reset()
-    moveTo(p3.x, p3.y)
-    lineTo(p1.x, p1.y)
-    lineTo(p2.x, p2.y)
-    lineTo(p3.x, p3.y)
-    close()
 }
