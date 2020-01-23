@@ -47,12 +47,12 @@ class SingleHeadArrowMode(override val mode: DrawingMode): SingleShapeMode(mode)
             endPivot.centerPoint(initX, initY, endX, endY)
             endPivot1.calculatePoint(endPivot, strokeWidth * 2, pr, pm)
             endPivot2.calculatePoint(endPivot, -strokeWidth * 2, pr, pm)
-            endPivot.calculatePoint(endPivot, MathUtil.positiveSignum(endX - initX) * strokeWidth * 4, MathUtil.calculateR(m), m)
+            endPivot.calculatePoint(endPivot, MathUtil.intSign(endX - initX) * strokeWidth * 4, MathUtil.calculateR(m), m)
         } else {
             endPivot.arrowHeadPivot(initX, initY, endX, endY, strokeWidth * 2, d)
             endPivot1.calculatePoint(endPivot, strokeWidth * 2, pr, pm)
             endPivot2.calculatePoint(endPivot, -strokeWidth * 2, pr, pm)
-            endPivot.calculatePoint(endPivot, MathUtil.positiveSignum(endX - initX) * strokeWidth * 4, MathUtil.calculateR(m), m)
+            endPivot.calculatePoint(endPivot, MathUtil.intSign(endX - initX) * strokeWidth * 4, MathUtil.calculateR(m), m)
         }
 
         endPath.composePath(endPivot1, endPivot2, endPivot)

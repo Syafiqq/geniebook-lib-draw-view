@@ -27,5 +27,5 @@ object MathUtil {
      * */
     fun calculateR(m: Float): Float = sqrt(1F + m.pow(2))
 
-    fun positiveSignum(v: Float): Int = if(sign(v) >= 0) 1 else -1
+    fun intSign(v: Float): Int = if(sign(v) >= 0) 1 else -1
 }
