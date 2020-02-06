@@ -62,6 +62,7 @@ uploadArchives {
     repositories.mavenDeployer {
         configuration = configurations.deployLibrary
         repository(url: 'git:releases://https://' + PUBLISHER_USERNAME + ':' + PUBLISHER_PASSWORD + '@bitbucket.org/' + COMPANY +'/' + REPOSITORY_NAME + '.git')
+        snapshotRepository(url: 'git:snapshot://https://' + PUBLISHER_USERNAME + ':' + PUBLISHER_PASSWORD + '@bitbucket.org/' + COMPANY +'/' + SNAPSHOT_REPOSITORY_NAME + '.git')
 
         pom.project {
             groupId = ARTIFACT_PACKAGE
