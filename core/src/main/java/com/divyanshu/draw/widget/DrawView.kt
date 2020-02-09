@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -142,6 +143,18 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         return super.performClick()
     }
 
+    override fun onSaveInstanceState(): Parcelable? {
+        val superState = super.onSaveInstanceState() ?: return null
+
+        val ss = SavedState(superState)
+
+        return ss
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        super.onRestoreInstanceState(state)
+    }
+
     fun isBlank(): Boolean {
         return drawingTool !is EraserContainer && drawingTool?.draw == null && holder.size == 0
     }
@@ -153,4 +166,8 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         draw(canvas)
         return bitmap
     }
+}
+
+class SavedState(private val parcel: Parcelable) : View.BaseSavedState(parcel) {
+
 }
