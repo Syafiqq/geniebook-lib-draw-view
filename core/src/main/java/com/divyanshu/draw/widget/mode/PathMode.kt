@@ -24,7 +24,30 @@ class PathMode(override val mode: DrawingMode) : Path(), IMode, Parcelable {
         strokeWidth = parcel.readFloat()
         val paths = FloatArray(parcel.readInt())
         parcel.readFloatArray(paths)
-        this.paths.addAll(paths.toList())
+        if(paths.size < 2) return
+        var xc = 0
+        var yc = 1
+        onFingerDown(paths[xc], paths[yc])
+        when {
+            paths.size >= 6 -> {
+                for (c in 1..((paths.size - 4) / 2)) {
+                    xc += 2
+                    yc += 2
+                    onFingerMove(paths[xc], paths[yc])
+                }
+                xc += 2
+                yc += 2
+                onFingerUp(paths[xc], paths[yc])
+            }
+            paths.size >= 4 -> {
+                xc += 2
+                yc += 2
+                onFingerUp(paths[xc], paths[yc])
+            }
+            else -> {
+                onFingerUp(paths[xc], paths[yc])
+            }
+        }
     }
 
     fun onFingerDown(x: Float, y: Float) {
