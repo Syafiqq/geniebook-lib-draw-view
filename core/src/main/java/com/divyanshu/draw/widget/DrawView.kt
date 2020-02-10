@@ -151,7 +151,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         val superState = super.onSaveInstanceState() ?: return null
 
         val ss = SavedState(superState)
-        ss.idx = 10
+        ss.holder.addAll(holder)
 
         return ss
     }
@@ -159,7 +159,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
     override fun onRestoreInstanceState(state: Parcelable?) {
         super.onRestoreInstanceState(state)
         if(state is SavedState) {
-            Log.d("This Is Draw View", state.idx.toString())
+            holder.addAll(state.holder)
         }
     }
 
@@ -176,19 +176,23 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
     }
 
     class SavedState: BaseSavedState {
-        var idx: Int = -1
+        val holder = ArrayList<IMode>()
 
         constructor(superState: Parcelable): super(superState)
         constructor(`in`: Parcel?) : super(`in`) {
             `in`?.let { storage ->
-                idx = storage.readInt()
+                storage.readParcelableArray(null)?.forEach {
+                    if(it is IMode) {
+                        holder.add(it)
+                    }
+                }
             }
         }
 
         override fun writeToParcel(out: Parcel?, flags: Int) {
             super.writeToParcel(out, flags)
             out?.let { storage ->
-                storage.writeInt(idx)
+                storage.writeParcelableArray(holder.toTypedArray(), 0)
             }
         }
 
