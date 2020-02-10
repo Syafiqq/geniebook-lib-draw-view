@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.os.Parcel
+import android.os.Parcelable
 import com.divyanshu.draw.widget.contract.DrawingMode
 import com.divyanshu.draw.widget.contract.IMode
 import kotlin.math.abs
@@ -14,7 +16,7 @@ private const val SELECT_THRESHOLD = 32
 private const val SCALE_SIZE = 64
 private const val SCALE_MAX = 10
 
-class ImageMode(override val mode: DrawingMode) : IMode {
+class ImageMode(override val mode: DrawingMode) : IMode, Parcelable {
     var bitmap: Bitmap? = null
     private var rectScaled: Rect = Rect()
 
@@ -28,6 +30,27 @@ class ImageMode(override val mode: DrawingMode) : IMode {
     private var scaledX = 0
     private var scaledY = 0
     private var pointerId = -1
+
+    constructor(parcel: Parcel) : this(DrawingMode.valueOf(parcel.readString() ?: "")) {
+        bitmap = parcel.readParcelable(Bitmap::class.java.classLoader)
+        (parcel.readParcelable(Rect::class.java.classLoader) as Rect?)?.let {
+            with(rectScaled) {
+                top = it.top
+                bottom = it.bottom
+                left = it.left
+                right = it.right
+            }
+        }
+        scale = parcel.readInt()
+        isInBound = parcel.readByte() != 0.toByte()
+        curX = parcel.readFloat()
+        curY = parcel.readFloat()
+        difX = parcel.readInt()
+        difY = parcel.readInt()
+        scaledX = parcel.readInt()
+        scaledY = parcel.readInt()
+        pointerId = parcel.readInt()
+    }
 
     fun onFingerDown(x: Float, y: Float, pointer: Int) {
         isInBound = isInBound(x, y)
@@ -123,5 +146,28 @@ class ImageMode(override val mode: DrawingMode) : IMode {
         bitmap?.let {
             canvas.drawBitmap(it, null, rectScaled, paint)
         }
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(mode.toString())
+        parcel.writeParcelable(bitmap, flags)
+        parcel.writeParcelable(rectScaled, flags)
+        parcel.writeInt(scale)
+        parcel.writeByte(if (isInBound) 1 else 0)
+        parcel.writeFloat(curX)
+        parcel.writeFloat(curY)
+        parcel.writeInt(difX)
+        parcel.writeInt(difY)
+        parcel.writeInt(scaledX)
+        parcel.writeInt(scaledY)
+        parcel.writeInt(pointerId)
+    }
+
+    override fun describeContents() = 0
+
+    companion object CREATOR : Parcelable.Creator<ImageMode> {
+        override fun createFromParcel(parcel: Parcel) = ImageMode(parcel)
+
+        override fun newArray(size: Int): Array<ImageMode?> = arrayOfNulls(size)
     }
 }
