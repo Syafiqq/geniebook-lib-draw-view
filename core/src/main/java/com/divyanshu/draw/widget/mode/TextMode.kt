@@ -11,6 +11,7 @@ import com.divyanshu.draw.widget.plugin.TextRect
 import kotlin.math.abs
 import kotlin.math.max
 
+private const val SELECT_THRESHOLD = 32
 private const val WIDTH_REDUCER = 32F
 private const val WIDTH_THRESHOLD = 16F
 private const val WIDTH_SCALE_MAX = 30
