@@ -16,7 +16,7 @@ private const val WIDTH_REDUCER = 32F
 private const val WIDTH_THRESHOLD = 16F
 private const val WIDTH_SCALE_MAX = 30
 
-class TextMode(override val mode: DrawingMode) : IMode, Parcelable {
+class TextMode(override val mode: DrawingMode) : IMode {
     private val textRect = TextRect()
     private val dashedPath = Path()
 

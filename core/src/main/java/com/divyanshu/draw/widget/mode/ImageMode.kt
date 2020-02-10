@@ -16,7 +16,7 @@ private const val SELECT_THRESHOLD = 32
 private const val SCALE_SIZE = 64
 private const val SCALE_MAX = 10
 
-class ImageMode(override val mode: DrawingMode) : IMode, Parcelable {
+class ImageMode(override val mode: DrawingMode) : IMode {
     var bitmap: Bitmap? = null
     private var rectScaled: Rect = Rect()
 

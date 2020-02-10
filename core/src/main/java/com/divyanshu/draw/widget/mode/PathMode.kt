@@ -9,7 +9,7 @@ import com.divyanshu.draw.widget.contract.DrawingMode
 import com.divyanshu.draw.widget.contract.IMode
 import java.util.*
 
-class PathMode(override val mode: DrawingMode) : Path(), IMode, Parcelable {
+class PathMode(override val mode: DrawingMode) : Path(), IMode {
     var color = 0
     var strokeWidth = 0F
 
