@@ -25,6 +25,7 @@ import com.divyanshu.draw.widget.impl.command.ClearCommand
 import com.divyanshu.draw.widget.impl.command.DrawCommand
 import java.util.*
 import kotlin.collections.ArrayList
+import com.divyanshu.draw.util.UnitConverter.convertToMap
 
 
 class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), ICanvas, ICommandManager {
@@ -97,23 +98,29 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
     }
 
     fun undo() {
+        shiftHolder()
+        requestInvalidate()
+    }
+
+    fun redo() {
+        unshiftHolder()
+        requestInvalidate()
+    }
+
+    private fun shiftHolder() {
         if (recordF.isEmpty()) return
 
         val command = recordF.pop()
         command.down()
         recordB.push(command)
-
-        requestInvalidate()
     }
 
-    fun redo() {
+    private fun unshiftHolder() {
         if (recordB.isEmpty()) return
 
         val command = recordB.pop()
         command.up()
         recordF.push(command)
-
-        requestInvalidate()
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -152,7 +159,9 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
 
         val ss = SavedState(superState)
         ss.holder.addAll(holder)
-
+        ss.recordF.addAll(recordF)
+        ss.recordB.addAll(recordB)
+        ss.backSize = -1
         return ss
     }
 
@@ -160,6 +169,9 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         super.onRestoreInstanceState(state)
         if(state is SavedState) {
             holder.addAll(state.holder)
+            Log.d("Draw View", "Raw Record ${state.rawRecordF.size}")
+            Log.d("Draw View", "Redo ${state.backSize}")
+            Log.d("Draw View", "Redo ${state.holder.size}")
         }
     }
 
@@ -177,6 +189,10 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
 
     class SavedState: BaseSavedState {
         val holder = ArrayList<IMode>()
+        val recordF = LinkedList<ICommand>()
+        val recordB = LinkedList<ICommand>()
+        val rawRecordF = LinkedList<Int>()
+        var backSize: Int = 0
 
         constructor(superState: Parcelable): super(superState)
         constructor(`in`: Parcel?) : super(`in`) {
@@ -186,13 +202,39 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                         holder.add(it)
                     }
                 }
+                this.backSize = storage.readInt()
+/*                val recordFSize = storage.readInt()
+                val rawRecord = IntArray(recordFSize)
+                storage.readIntArray(rawRecord)
+                rawRecord.forEach {
+                    rawRecordF.add(it)
+                }*/
             }
         }
 
         override fun writeToParcel(out: Parcel?, flags: Int) {
             super.writeToParcel(out, flags)
+            val holderMapper = holder.convertToMap({ x -> x }, { _, i -> i })
+
+            val recordFHolder = LinkedList<Int>()
+/*            LinkedList<ICommand>()
+                    .apply {
+                        addAll(recordF)
+                        addAll(recordB)
+                    }
+                    .forEach {
+                        if(it is DrawCommand) {
+                            recordFHolder.add(1)
+                            recordFHolder.add(holderMapper[it.draw] ?: -1)
+                        } else {
+                            recordFHolder.add(0)
+                        }
+                    }*/
             out?.let { storage ->
                 storage.writeParcelableArray(holder.toTypedArray(), 0)
+                storage.writeInt(recordB.size)
+/*                storage.writeInt(recordFHolder.size)
+                storage.writeIntArray(recordFHolder.toIntArray())*/
             }
         }
 
