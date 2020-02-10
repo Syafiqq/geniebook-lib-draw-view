@@ -181,7 +181,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         constructor(superState: Parcelable): super(superState)
         constructor(`in`: Parcel?) : super(`in`) {
             `in`?.let { storage ->
-                storage.readParcelableArray(null)?.forEach {
+                storage.readParcelableArray(ClassLoader.getSystemClassLoader())?.forEach {
                     if(it is IMode) {
                         holder.add(it)
                     }
