@@ -55,6 +55,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         }
 
     init {
+        isSaveEnabled = true
         val paint = Paint().apply {
             alpha = 0xFF
             color = Color.WHITE
