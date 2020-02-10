@@ -4,24 +4,21 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
-import com.divyanshu.draw.util.ImageUtil
 import com.divyanshu.draw.widget.contract.DrawingMode
 import com.divyanshu.draw.widget.contract.IMode
-import java.io.InputStream
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-class ImageMode(override val mode: DrawingMode) : IMode {
-    private val selThreshold = 32
+private const val SELECT_THRESHOLD = 32
+private const val SCALE_SIZE = 64
+private const val SCALE_MAX = 10
 
+class ImageMode(override val mode: DrawingMode) : IMode {
     var bitmap: Bitmap? = null
     private var rectScaled: Rect = Rect()
 
     private var scale: Int = 0
-    private val scaledMax = 10
-    private val scaleSize = 64
-
     private var isInBound = false
 
     private var curX = 0F
@@ -73,8 +70,8 @@ class ImageMode(override val mode: DrawingMode) : IMode {
     private fun isInBound(x: Float, y: Float): Boolean {
         val r = rectScaled
 
-        return x > (r.left - selThreshold) && x < (r.right + selThreshold) &&
-                y > (r.top - selThreshold) && y < (r.bottom + selThreshold)
+        return x > (r.left - SELECT_THRESHOLD) && x < (r.right + SELECT_THRESHOLD) &&
+                y > (r.top - SELECT_THRESHOLD) && y < (r.bottom + SELECT_THRESHOLD)
     }
 
     fun updateBitmapDirectly(image: Bitmap) {
@@ -98,7 +95,7 @@ class ImageMode(override val mode: DrawingMode) : IMode {
     fun scaledUp() {
         val scaleTest = scale + 1
         when {
-            abs(scaleTest) > scaledMax -> return
+            abs(scaleTest) > SCALE_MAX -> return
             else -> ++scale
         }
         updateScale()
@@ -108,8 +105,8 @@ class ImageMode(override val mode: DrawingMode) : IMode {
     fun scaledDown() {
         val scaleTest = scale - 1
         when {
-            abs(scaleTest) > scaledMax -> return
-            min(bitmap?.width ?: 0, bitmap?.height ?: 0) + (scaleTest * scaleSize) < 0 -> return
+            abs(scaleTest) > SCALE_MAX -> return
+            min(bitmap?.width ?: 0, bitmap?.height ?: 0) + (scaleTest * SCALE_SIZE) < 0 -> return
             else -> --scale
         }
         updateScale()
@@ -118,8 +115,8 @@ class ImageMode(override val mode: DrawingMode) : IMode {
 
     private fun updateScale() {
         if (bitmap == null) return
-        scaledX = scaleSize * scale
-        scaledY = (scaleSize * (bitmap?.height ?: 0) / (bitmap?.width ?: 0)) * scale
+        scaledX = SCALE_SIZE * scale
+        scaledY = (SCALE_SIZE * (bitmap?.height ?: 0) / (bitmap?.width ?: 0)) * scale
     }
 
     fun onDraw(canvas: Canvas, paint: Paint) {
