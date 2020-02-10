@@ -9,12 +9,14 @@ import com.divyanshu.draw.widget.plugin.TextRect
 import kotlin.math.abs
 import kotlin.math.max
 
+const val SELECT_THRESHOLD = 32
+const val WIDTH_REDUCER = 32F
+const val WIDTH_THRESHOLD = 16F
+const val WIDTH_SCALE_MAX = 30
+
 class TextMode(override val mode: DrawingMode) : IMode {
     private val textRect = TextRect()
     private val dashedPath = Path()
-    private val selThreshold = 32
-    private val widthReducer = 32F
-    private val widthThreshold = 16F
 
     var drawBorder = false
 
@@ -34,7 +36,6 @@ class TextMode(override val mode: DrawingMode) : IMode {
     private var pointerId = -1
 
     private var widthScale:Int = 0
-    private val widthScaleMax = 30
     private var rectWidth = 200F
     private var rectHeight = 0F
 
@@ -76,8 +77,8 @@ class TextMode(override val mode: DrawingMode) : IMode {
     }
 
     private fun isInBound(x: Float, y: Float): Boolean {
-        return x > (curX - selThreshold) && x < (curX + rectWidth + selThreshold) &&
-                y > (curY - selThreshold) && y < (curY + rectHeight + selThreshold)
+        return x > (curX - SELECT_THRESHOLD) && x < (curX + rectWidth + SELECT_THRESHOLD) &&
+                y > (curY - SELECT_THRESHOLD) && y < (curY + rectHeight + SELECT_THRESHOLD)
     }
 
     private fun decorate(paint: Paint) {
@@ -114,7 +115,7 @@ class TextMode(override val mode: DrawingMode) : IMode {
                     rectHeight = h.toFloat()
                     break
                 }
-                rectWidth += widthReducer + 8
+                rectWidth += WIDTH_REDUCER + 8
             }
         }
     }
@@ -122,9 +123,9 @@ class TextMode(override val mode: DrawingMode) : IMode {
     fun textWidthIncrease(paint: Paint) {
         val _scale = widthScale + 1
         when {
-            abs(_scale) > widthScaleMax -> return
+            abs(_scale) > WIDTH_SCALE_MAX -> return
             else -> {
-                rectWidth += widthReducer
+                rectWidth += WIDTH_REDUCER
                 ++widthScale
                 updateTextDimension(paint)
             }
@@ -133,9 +134,9 @@ class TextMode(override val mode: DrawingMode) : IMode {
 
     fun textWidthDecrease(paint: Paint) {
         when {
-            rectWidth - widthReducer < max(textSize, widthThreshold) -> return
+            rectWidth - WIDTH_REDUCER < max(textSize, WIDTH_THRESHOLD) -> return
             else -> {
-                rectWidth -= widthReducer
+                rectWidth -= WIDTH_REDUCER
                 --widthScale
                 updateTextDimension(paint)
             }
