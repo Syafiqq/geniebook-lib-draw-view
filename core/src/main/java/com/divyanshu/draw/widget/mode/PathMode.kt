@@ -5,6 +5,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import com.divyanshu.draw.widget.contract.DrawingMode
 import com.divyanshu.draw.widget.contract.IMode
+import java.util.*
 
 class PathMode(override val mode: DrawingMode) : Path(), IMode {
     var color = 0
@@ -14,8 +15,10 @@ class PathMode(override val mode: DrawingMode) : Path(), IMode {
     private var curY = 0F
     private var initX = 0F
     private var initY = 0F
+    private val path = LinkedList<Float>()
 
     fun onFingerDown(x: Float, y: Float) {
+        registerPath(x, y)
         reset()
         moveTo(x, y)
         initialPos(x, y)
@@ -23,11 +26,13 @@ class PathMode(override val mode: DrawingMode) : Path(), IMode {
     }
 
     fun onFingerMove(x: Float, y: Float) {
+        registerPath(x, y)
         quadTo(curX, curY, (x + curX) / 2, (y + curY) / 2)
         currentPos(x, y)
     }
 
     fun onFingerUp(x: Float, y: Float) {
+        registerPath(x, y)
         lineTo(curX, curY)
 
         if (initX == curX && initY == curY) {
@@ -45,6 +50,11 @@ class PathMode(override val mode: DrawingMode) : Path(), IMode {
     private fun initialPos(x: Float, y: Float) {
         initX = x
         initY = y
+    }
+
+    private fun registerPath(x: Float, y: Float) {
+        path.add(x)
+        path.add(y)
     }
 
     private fun decorate(paint: Paint) {
