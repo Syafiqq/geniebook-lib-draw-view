@@ -11,10 +11,9 @@ import com.divyanshu.draw.widget.plugin.TextRect
 import kotlin.math.abs
 import kotlin.math.max
 
-const val SELECT_THRESHOLD = 32
-const val WIDTH_REDUCER = 32F
-const val WIDTH_THRESHOLD = 16F
-const val WIDTH_SCALE_MAX = 30
+private const val WIDTH_REDUCER = 32F
+private const val WIDTH_THRESHOLD = 16F
+private const val WIDTH_SCALE_MAX = 30
 
 class TextMode(override val mode: DrawingMode) : IMode, Parcelable {
     private val textRect = TextRect()
