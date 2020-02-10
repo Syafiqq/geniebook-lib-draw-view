@@ -189,7 +189,7 @@ class TextMode(override val mode: DrawingMode) : IMode, Parcelable {
         parcel.writeByte(if (drawBorder) 1 else 0)
         parcel.writeInt(color)
         parcel.writeFloat(textSize)
-        parcel.writeString(text ?: "")
+        parcel.writeString(text)
         parcel.writeByte(if (isInBound) 1 else 0)
         parcel.writeFloat(curX)
         parcel.writeFloat(curY)
