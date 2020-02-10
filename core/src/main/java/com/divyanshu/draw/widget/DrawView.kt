@@ -8,6 +8,7 @@ import android.graphics.Paint
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import com.divyanshu.draw.widget.container.EraserContainer
@@ -150,12 +151,16 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         val superState = super.onSaveInstanceState() ?: return null
 
         val ss = SavedState(superState)
+        ss.idx = 10
 
         return ss
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
         super.onRestoreInstanceState(state)
+        if(state is SavedState) {
+            Log.d("This Is Draw View", state.idx.toString())
+        }
     }
 
     fun isBlank(): Boolean {
