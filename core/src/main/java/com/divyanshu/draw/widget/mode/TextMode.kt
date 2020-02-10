@@ -3,6 +3,8 @@ package com.divyanshu.draw.widget.mode
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import android.os.Parcel
+import android.os.Parcelable
 import com.divyanshu.draw.widget.contract.DrawingMode
 import com.divyanshu.draw.widget.contract.IMode
 import com.divyanshu.draw.widget.plugin.TextRect
@@ -14,7 +16,7 @@ const val WIDTH_REDUCER = 32F
 const val WIDTH_THRESHOLD = 16F
 const val WIDTH_SCALE_MAX = 30
 
-class TextMode(override val mode: DrawingMode) : IMode {
+class TextMode(override val mode: DrawingMode) : IMode, Parcelable {
     private val textRect = TextRect()
     private val dashedPath = Path()
 
@@ -35,9 +37,25 @@ class TextMode(override val mode: DrawingMode) : IMode {
     private var difY = 0F
     private var pointerId = -1
 
-    private var widthScale:Int = 0
+    private var widthScale = 0
     private var rectWidth = 200F
     private var rectHeight = 0F
+
+    constructor(parcel: Parcel) : this(DrawingMode.valueOf(parcel.readString() ?: "")) {
+        drawBorder = parcel.readByte() != 0.toByte()
+        color = parcel.readInt()
+        textSize = parcel.readFloat()
+        text = parcel.readString()
+        isInBound = parcel.readByte() != 0.toByte()
+        curX = parcel.readFloat()
+        curY = parcel.readFloat()
+        difX = parcel.readFloat()
+        difY = parcel.readFloat()
+        pointerId = parcel.readInt()
+        widthScale = parcel.readInt()
+        rectWidth = parcel.readFloat()
+        rectHeight = parcel.readFloat()
+    }
 
     fun onFingerDown(x: Float, y: Float, pointer: Int) {
         isInBound = isInBound(x, y)
@@ -164,5 +182,30 @@ class TextMode(override val mode: DrawingMode) : IMode {
             lineTo(curX, curY)
             close()
         }
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(mode.toString())
+        parcel.writeByte(if (drawBorder) 1 else 0)
+        parcel.writeInt(color)
+        parcel.writeFloat(textSize)
+        parcel.writeString(text ?: "")
+        parcel.writeByte(if (isInBound) 1 else 0)
+        parcel.writeFloat(curX)
+        parcel.writeFloat(curY)
+        parcel.writeFloat(difX)
+        parcel.writeFloat(difY)
+        parcel.writeInt(pointerId)
+        parcel.writeInt(widthScale)
+        parcel.writeFloat(rectWidth)
+        parcel.writeFloat(rectHeight)
+    }
+
+    override fun describeContents() = 0
+
+    companion object CREATOR : Parcelable.Creator<TextMode> {
+        override fun createFromParcel(parcel: Parcel) = TextMode(parcel)
+
+        override fun newArray(size: Int): Array<TextMode?> = arrayOfNulls(size)
     }
 }
