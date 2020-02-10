@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.os.Parcel
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.MotionEvent
@@ -23,6 +24,7 @@ import com.divyanshu.draw.widget.impl.command.ClearCommand
 import com.divyanshu.draw.widget.impl.command.DrawCommand
 import java.util.*
 import kotlin.collections.ArrayList
+
 
 class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), ICanvas, ICommandManager {
     override val recordF = Stack<ICommand>()
@@ -167,8 +169,21 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         draw(canvas)
         return bitmap
     }
-}
 
-class SavedState(private val parcel: Parcelable) : View.BaseSavedState(parcel) {
+    class SavedState: BaseSavedState {
+        constructor(superState: Parcelable): super(superState)
+        constructor(`in`: Parcel?) : super(`in`) {
+            //
+        }
 
+        override fun writeToParcel(out: Parcel?, flags: Int) {
+            super.writeToParcel(out, flags)
+        }
+
+        companion object CREATOR: Parcelable.Creator<SavedState> {
+            override fun createFromParcel(source: Parcel?): SavedState = SavedState(source)
+
+            override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
+        }
+    }
 }
