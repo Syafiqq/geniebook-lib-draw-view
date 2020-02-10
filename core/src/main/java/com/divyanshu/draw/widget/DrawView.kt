@@ -171,13 +171,20 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
     }
 
     class SavedState: BaseSavedState {
+        var idx: Int = -1
+
         constructor(superState: Parcelable): super(superState)
         constructor(`in`: Parcel?) : super(`in`) {
-            //
+            `in`?.let { storage ->
+                idx = storage.readInt()
+            }
         }
 
         override fun writeToParcel(out: Parcel?, flags: Int) {
             super.writeToParcel(out, flags)
+            out?.let { storage ->
+                storage.writeInt(idx)
+            }
         }
 
         companion object CREATOR: Parcelable.Creator<SavedState> {
