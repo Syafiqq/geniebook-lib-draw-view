@@ -191,7 +191,6 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
 
         val ss = SavedState(superState)
         ss.container.addAll(container)
-        ss.forwardHolderSize = forwardHolder.size
         ss.forwardHolder.addAll(forwardHolder)
         ss.backwardSize = recordB.size
 
@@ -242,7 +241,6 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
 
     class SavedState: BaseSavedState {
         val container = LinkedList<Parcelable>()
-        var forwardHolderSize = -1
         val forwardHolder = LinkedList<Int>()
         var backwardSize = -1
 
@@ -252,8 +250,8 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                 storage.readParcelableArray(ClassLoader.getSystemClassLoader())?.forEach {
                     container.add(it)
                 }
-                forwardHolderSize = storage.readInt()
-                IntArray(forwardHolderSize)
+                val size = storage.readInt()
+                IntArray(size)
                         .also { storage.readIntArray(it) }
                         .forEach { forwardHolder.add(it) }
                 backwardSize = storage.readInt()
