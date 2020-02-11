@@ -13,6 +13,7 @@ interface IDrawingContainer<T> {
     fun onTouchEvent(event: MotionEvent): Boolean
     fun attachDrawingTool()
     fun detachDrawingTool()
+    fun assignDraw(draw: IMode, canvas: ICanvas)
 
     val context: Context
     val drawing: ICanvas

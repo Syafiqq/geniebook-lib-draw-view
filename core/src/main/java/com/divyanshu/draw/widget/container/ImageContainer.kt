@@ -53,6 +53,17 @@ class ImageContainer(override val context: Context, override val drawing: ICanva
         }
     }
 
+    override fun assignDraw(draw: IMode, canvas: ICanvas) {
+        if (draw !is ImageMode || canvas !== drawing) return
+
+        if(!isOnRequest) {
+            isOnRequest = true
+            attachDrawingTool()
+            this.draw = draw
+            drawing.requestInvalidate()
+        }
+    }
+
     override fun attachDrawingTool() {
         listener.attachComponent(this)
     }

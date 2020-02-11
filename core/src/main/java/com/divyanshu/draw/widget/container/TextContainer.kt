@@ -80,6 +80,14 @@ class TextContainer(override val context: Context, override val drawing: ICanvas
         listener.requestText()
     }
 
+    override fun assignDraw(draw: IMode, canvas: ICanvas) {
+        if (draw !is TextMode || canvas !== drawing) return
+
+        attachDrawingTool()
+        this.draw = draw
+        drawing.requestInvalidate()
+    }
+
     override fun destroyDrawingObject() {
         draw?.drawBorder = false
         draw = null

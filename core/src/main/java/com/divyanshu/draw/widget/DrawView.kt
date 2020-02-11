@@ -243,6 +243,8 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         val container = LinkedList<Parcelable>()
         val forwardHolder = LinkedList<Int>()
         var backwardSize = -1
+        val currentDraw: String? = null
+        val current: Parcelable? = null
 
         constructor(superState: Parcelable): super(superState)
         constructor(`in`: Parcel?) : super(`in`) {
