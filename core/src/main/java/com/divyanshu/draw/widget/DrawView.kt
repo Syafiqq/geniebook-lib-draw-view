@@ -78,6 +78,11 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
 
         container.add(draw)
         recordF.push(command)
+        recordB.forEach {
+            if (it is DrawCommand) {
+                container.remove(it.draw)
+            }
+        }
         recordB.clear()
 
         requestInvalidate()
@@ -94,6 +99,11 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         command.up()
 
         recordF.push(command)
+        recordB.forEach {
+            if (it is DrawCommand) {
+                container.remove(it.draw)
+            }
+        }
         recordB.clear()
 
         requestInvalidate()
