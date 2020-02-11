@@ -193,6 +193,8 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         ss.container.addAll(container)
         ss.forwardHolder.addAll(forwardHolder)
         ss.backwardSize = recordB.size
+        ss.currentTool = drawingMode?.toString()
+        ss.currentDraw = drawingTool?.draw as Parcelable?
 
         return ss
     }
@@ -223,6 +225,14 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
             for (i in 1..state.backwardSize) {
                 doUndo()
             }
+            val currentTool = state.currentTool
+            if(currentTool != null) {
+                drawingMode = DrawingMode.valueOf(currentTool)
+            }
+            val currentDraw = state.currentDraw
+            if(currentDraw is IMode) {
+                drawingTool?.assignDraw(currentDraw, this)
+            }
             requestInvalidate()
         }
     }
@@ -243,8 +253,8 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         val container = LinkedList<Parcelable>()
         val forwardHolder = LinkedList<Int>()
         var backwardSize = -1
-        val currentDraw: String? = null
-        val current: Parcelable? = null
+        var currentTool: String? = null
+        var currentDraw: Parcelable? = null
 
         constructor(superState: Parcelable): super(superState)
         constructor(`in`: Parcel?) : super(`in`) {
@@ -257,6 +267,8 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                         .also { storage.readIntArray(it) }
                         .forEach { forwardHolder.add(it) }
                 backwardSize = storage.readInt()
+                currentTool = storage.readString()
+                currentDraw = storage.readParcelable(ClassLoader.getSystemClassLoader())
             }
         }
 
@@ -267,6 +279,8 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                 storage.writeInt(forwardHolder.size)
                 storage.writeIntArray(forwardHolder.toIntArray())
                 storage.writeInt(backwardSize)
+                storage.writeString(currentTool)
+                storage.writeParcelable(currentDraw, 0)
             }
         }
 
