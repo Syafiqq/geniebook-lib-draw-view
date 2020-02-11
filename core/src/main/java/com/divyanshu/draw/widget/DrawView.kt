@@ -8,6 +8,7 @@ import android.graphics.Paint
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import com.divyanshu.draw.widget.container.EraserContainer
@@ -24,6 +25,7 @@ import com.divyanshu.draw.widget.impl.command.ClearCommand
 import com.divyanshu.draw.widget.impl.command.DrawCommand
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashSet
 import com.divyanshu.draw.util.UnitConverter.convertToMap
 
 
@@ -31,7 +33,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
     override val recordF = Stack<ICommand>()
     override val recordB = Stack<ICommand>()
     private val holder = ArrayList<IMode>()
-    private val container = LinkedList<IMode>()
+    private val container = LinkedHashSet<IMode>()
 
     private val linePath = PenContainer(context, this)
     private val eraserPath = EraserContainer(context, this)
@@ -156,7 +158,9 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
 
     override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState() ?: return null
-        val containerMapper = container.convertToMap({ x -> x }, { _, i -> i })
+        val containerMapper = container
+                .toList()
+                .convertToMap({ x -> x }, { _, i -> i })
         val forwardHolder = LinkedList<Int>()
             LinkedList<ICommand>()
                     .apply {
@@ -178,32 +182,56 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         ss.forwardHolder.addAll(forwardHolder)
         ss.backwardSize = recordB.size
 
+        Log.d("DrawView", """
+            On Save State
+            container = ${container.size}
+            holder = ${holder.size}
+            forwardSize = ${recordF.size}
+            backwardSize = ${recordB.size}
+        """.trimIndent())
+
         return ss
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
         super.onRestoreInstanceState(state)
         if(state is SavedState) {
+            container.clear()
+            holder.clear()
+            recordF.clear()
+            recordB.clear()
+            Log.d("DrawView", """
+                On Restore State
+                container = ${state.container.size}
+                backwardSize = ${state.backwardSize}
+            """.trimIndent())
+
             state.container.forEach { p ->
                 if (p is IMode) {
                     container.add(p)
                 }
             }
+            val _container = container.toList()
             var c = -1
             while ((c + 1) < state.forwardHolder.size) {
                 val flag = state.forwardHolder[++c]
-                val command = if(flag == 0) {
-                    val draw = container[state.forwardHolder[++c]]
-                    DrawCommand(holder, draw)
+                if(flag == 1) {
+                    val draw = _container[state.forwardHolder[++c]]
+                    attachToCanvas(draw)
                 } else {
-                    ClearCommand(holder)
+                    clearCanvas()
                 }
-                command.up()
-                recordF.add(command)
             }
             for (i in 1..state.backwardSize) {
-                undoHolder()
+                undo()
             }
+            Log.d("DrawView", """
+                On Post Restore State
+                container = ${container.size}
+                holder = ${holder.size}
+                forwardSize = ${recordF.size}
+                backwardSize = ${recordB.size}
+            """.trimIndent())
         }
     }
 
@@ -232,11 +260,9 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                     container.add(it)
                 }
                 forwardHolderSize = storage.readInt()
-                IntArray(forwardHolderSize).also {
-                    storage.readIntArray(it)
-                }.forEach {
-                    forwardHolder.add(it)
-                }
+                IntArray(forwardHolderSize)
+                        .also { storage.readIntArray(it) }
+                        .forEach { forwardHolder.add(it) }
                 backwardSize = storage.readInt()
             }
         }
