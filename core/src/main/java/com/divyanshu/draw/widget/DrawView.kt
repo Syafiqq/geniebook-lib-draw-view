@@ -87,16 +87,16 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
     }
 
     fun undo() {
-        undoHolder()
+        doUndo()
         requestInvalidate()
     }
 
     fun redo() {
-        redoHolder()
+        doRedo()
         requestInvalidate()
     }
 
-    private fun undoHolder() {
+    private fun doUndo() {
         if (recordF.isEmpty()) return
 
         val command = recordF.pop()
@@ -104,7 +104,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         recordB.push(command)
     }
 
-    private fun redoHolder() {
+    private fun doRedo() {
         if (recordB.isEmpty()) return
 
         val command = recordB.pop()
@@ -178,7 +178,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
             LinkedList<ICommand>()
                     .apply {
                         addAll(recordF)
-                        addAll(recordB)
+                        addAll(recordB.reversed())
                     }
                     .forEach {
                         if(it is DrawCommand && containerMapper.containsKey(it.draw)) {
@@ -222,7 +222,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                 }
             }
             for (i in 1..state.backwardSize) {
-                undoHolder()
+                doUndo()
             }
             requestInvalidate()
         }
