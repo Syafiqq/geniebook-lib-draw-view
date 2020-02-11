@@ -8,7 +8,6 @@ import android.graphics.Paint
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import com.divyanshu.draw.widget.container.EraserContainer
@@ -182,14 +181,6 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         ss.forwardHolder.addAll(forwardHolder)
         ss.backwardSize = recordB.size
 
-        Log.d("DrawView", """
-            On Save State
-            container = ${container.size}
-            holder = ${holder.size}
-            forwardSize = ${recordF.size}
-            backwardSize = ${recordB.size}
-        """.trimIndent())
-
         return ss
     }
 
@@ -200,12 +191,6 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
             holder.clear()
             recordF.clear()
             recordB.clear()
-            Log.d("DrawView", """
-                On Restore State
-                container = ${state.container.size}
-                backwardSize = ${state.backwardSize}
-            """.trimIndent())
-
             state.container.forEach { p ->
                 if (p is IMode) {
                     container.add(p)
@@ -225,13 +210,6 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
             for (i in 1..state.backwardSize) {
                 undo()
             }
-            Log.d("DrawView", """
-                On Post Restore State
-                container = ${container.size}
-                holder = ${holder.size}
-                forwardSize = ${recordF.size}
-                backwardSize = ${recordB.size}
-            """.trimIndent())
         }
     }
 
