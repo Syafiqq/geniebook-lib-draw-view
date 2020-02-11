@@ -8,7 +8,6 @@ import android.graphics.Paint
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import com.divyanshu.draw.widget.container.EraserContainer
@@ -32,6 +31,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
     override val recordF = Stack<ICommand>()
     override val recordB = Stack<ICommand>()
     private val holder = ArrayList<IMode>()
+    private val container = LinkedList<IMode>()
 
     private val linePath = PenContainer(context, this)
     private val eraserPath = EraserContainer(context, this)
@@ -75,6 +75,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         val command = DrawCommand(holder, draw)
         command.up()
 
+        container.add(draw)
         recordF.push(command)
         recordB.clear()
 
@@ -98,16 +99,16 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
     }
 
     fun undo() {
-        shiftHolder()
+        undoHolder()
         requestInvalidate()
     }
 
     fun redo() {
-        unshiftHolder()
+        redoHolder()
         requestInvalidate()
     }
 
-    private fun shiftHolder() {
+    private fun undoHolder() {
         if (recordF.isEmpty()) return
 
         val command = recordF.pop()
@@ -115,7 +116,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         recordB.push(command)
     }
 
-    private fun unshiftHolder() {
+    private fun redoHolder() {
         if (recordB.isEmpty()) return
 
         val command = recordB.pop()
@@ -132,7 +133,6 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                 DrawingMode.ERASE -> eraserPath.onDraw(canvas, it)
                 DrawingMode.TEXT -> textContainer.onDraw(canvas, it)
                 DrawingMode.IMAGE -> imageContainer.onDraw(canvas, it)
-                else -> {}
             }
         }
 
@@ -156,22 +156,54 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
 
     override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState() ?: return null
+        val containerMapper = container.convertToMap({ x -> x }, { _, i -> i })
+        val forwardHolder = LinkedList<Int>()
+            LinkedList<ICommand>()
+                    .apply {
+                        addAll(recordF)
+                        addAll(recordB)
+                    }
+                    .forEach {
+                        if(it is DrawCommand && containerMapper.containsKey(it.draw)) {
+                            forwardHolder.add(1)
+                            forwardHolder.add(containerMapper[it.draw] ?: -1)
+                        } else {
+                            forwardHolder.add(0)
+                        }
+                    }
 
         val ss = SavedState(superState)
-        ss.holder.addAll(holder)
-        ss.recordF.addAll(recordF)
-        ss.recordB.addAll(recordB)
-        ss.backSize = -1
+        ss.container.addAll(container)
+        ss.forwardHolderSize = forwardHolder.size
+        ss.forwardHolder.addAll(forwardHolder)
+        ss.backwardSize = recordB.size
+
         return ss
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
         super.onRestoreInstanceState(state)
         if(state is SavedState) {
-            holder.addAll(state.holder)
-            Log.d("Draw View", "Raw Record ${state.rawRecordF.size}")
-            Log.d("Draw View", "Redo ${state.backSize}")
-            Log.d("Draw View", "Redo ${state.holder.size}")
+            state.container.forEach { p ->
+                if (p is IMode) {
+                    container.add(p)
+                }
+            }
+            var c = -1
+            while ((c + 1) < state.forwardHolder.size) {
+                val flag = state.forwardHolder[++c]
+                val command = if(flag == 0) {
+                    val draw = container[state.forwardHolder[++c]]
+                    DrawCommand(holder, draw)
+                } else {
+                    ClearCommand(holder)
+                }
+                command.up()
+                recordF.add(command)
+            }
+            for (i in 1..state.backwardSize) {
+                undoHolder()
+            }
         }
     }
 
@@ -189,8 +221,8 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
 
     class SavedState: BaseSavedState {
         val container = LinkedList<Parcelable>()
-        var forwardRecordS = -1
-        val forwardRecord = LinkedList<Int>()
+        var forwardHolderSize = -1
+        val forwardHolder = LinkedList<Int>()
         var backwardSize = -1
 
         constructor(superState: Parcelable): super(superState)
@@ -199,11 +231,11 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                 storage.readParcelableArray(ClassLoader.getSystemClassLoader())?.forEach {
                     container.add(it)
                 }
-                forwardRecordS = storage.readInt()
-                IntArray(forwardRecordS).also {
+                forwardHolderSize = storage.readInt()
+                IntArray(forwardHolderSize).also {
                     storage.readIntArray(it)
                 }.forEach {
-                    forwardRecord.add(it)
+                    forwardHolder.add(it)
                 }
                 backwardSize = storage.readInt()
             }
@@ -213,8 +245,8 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
             super.writeToParcel(out, flags)
             out?.let { storage ->
                 storage.writeParcelableArray(container.toTypedArray(), 0)
-                storage.writeInt(forwardRecord.size)
-                storage.writeIntArray(forwardRecord.toIntArray())
+                storage.writeInt(forwardHolder.size)
+                storage.writeIntArray(forwardHolder.toIntArray())
                 storage.writeInt(backwardSize)
             }
         }
