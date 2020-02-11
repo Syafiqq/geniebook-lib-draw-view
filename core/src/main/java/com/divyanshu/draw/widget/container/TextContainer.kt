@@ -86,6 +86,7 @@ class TextContainer(override val context: Context, override val drawing: ICanvas
         attachDrawingTool()
         this.draw = draw
         drawing.requestInvalidate()
+        listener.showCustomTool()
     }
 
     override fun destroyDrawingObject() {
@@ -126,6 +127,7 @@ class TextContainer(override val context: Context, override val drawing: ICanvas
             initializeText(text, textSize, textWidth, drawPaint)
             drawing.requestInvalidate()
         }
+        listener.showCustomTool()
     }
 
     override fun onApply() {
@@ -158,6 +160,7 @@ class TextContainer(override val context: Context, override val drawing: ICanvas
     interface InteractionListener {
         fun attachComponent(paint: IPaint, callback: ITextDrawCallback)
         fun requestText()
+        fun showCustomTool()
         fun detachComponent()
     }
 }
