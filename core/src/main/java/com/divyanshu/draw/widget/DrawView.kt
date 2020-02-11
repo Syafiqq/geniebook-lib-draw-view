@@ -188,53 +188,34 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
     }
 
     class SavedState: BaseSavedState {
-        val holder = ArrayList<IMode>()
-        val recordF = LinkedList<ICommand>()
-        val recordB = LinkedList<ICommand>()
-        val rawRecordF = LinkedList<Int>()
-        var backSize: Int = 0
+        val container = LinkedList<Parcelable>()
+        var forwardRecordS = -1
+        val forwardRecord = LinkedList<Int>()
+        var backwardSize = -1
 
         constructor(superState: Parcelable): super(superState)
         constructor(`in`: Parcel?) : super(`in`) {
             `in`?.let { storage ->
                 storage.readParcelableArray(ClassLoader.getSystemClassLoader())?.forEach {
-                    if(it is IMode) {
-                        holder.add(it)
-                    }
+                    container.add(it)
                 }
-                this.backSize = storage.readInt()
-/*                val recordFSize = storage.readInt()
-                val rawRecord = IntArray(recordFSize)
-                storage.readIntArray(rawRecord)
-                rawRecord.forEach {
-                    rawRecordF.add(it)
-                }*/
+                forwardRecordS = storage.readInt()
+                IntArray(forwardRecordS).also {
+                    storage.readIntArray(it)
+                }.forEach {
+                    forwardRecord.add(it)
+                }
+                backwardSize = storage.readInt()
             }
         }
 
         override fun writeToParcel(out: Parcel?, flags: Int) {
             super.writeToParcel(out, flags)
-            val holderMapper = holder.convertToMap({ x -> x }, { _, i -> i })
-
-            val recordFHolder = LinkedList<Int>()
-/*            LinkedList<ICommand>()
-                    .apply {
-                        addAll(recordF)
-                        addAll(recordB)
-                    }
-                    .forEach {
-                        if(it is DrawCommand) {
-                            recordFHolder.add(1)
-                            recordFHolder.add(holderMapper[it.draw] ?: -1)
-                        } else {
-                            recordFHolder.add(0)
-                        }
-                    }*/
             out?.let { storage ->
-                storage.writeParcelableArray(holder.toTypedArray(), 0)
-                storage.writeInt(recordB.size)
-/*                storage.writeInt(recordFHolder.size)
-                storage.writeIntArray(recordFHolder.toIntArray())*/
+                storage.writeParcelableArray(container.toTypedArray(), 0)
+                storage.writeInt(forwardRecord.size)
+                storage.writeIntArray(forwardRecord.toIntArray())
+                storage.writeInt(backwardSize)
             }
         }
 
