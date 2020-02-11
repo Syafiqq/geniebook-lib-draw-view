@@ -72,19 +72,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
 
     override fun attachToCanvas(draw: IMode) {
         drawingTool?.destroyDrawingObject()
-
-        val command = DrawCommand(holder, draw)
-        command.up()
-
-        container.add(draw)
-        recordF.push(command)
-        recordB.forEach {
-            if (it is DrawCommand) {
-                container.remove(it.draw)
-            }
-        }
-        recordB.clear()
-
+        doDraw(draw)
         requestInvalidate()
     }
 
@@ -94,18 +82,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
 
     fun clearCanvas() {
         if (holder.isEmpty()) return
-
-        val command = ClearCommand(holder)
-        command.up()
-
-        recordF.push(command)
-        recordB.forEach {
-            if (it is DrawCommand) {
-                container.remove(it.draw)
-            }
-        }
-        recordB.clear()
-
+        doClear()
         requestInvalidate()
     }
 
@@ -133,6 +110,33 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         val command = recordB.pop()
         command.up()
         recordF.push(command)
+    }
+
+    private fun doDraw(draw: IMode) {
+        val command = DrawCommand(holder, draw)
+        command.up()
+
+        container.add(draw)
+        recordF.push(command)
+        recordB.forEach {
+            if (it is DrawCommand) {
+                container.remove(it.draw)
+            }
+        }
+        recordB.clear()
+    }
+
+    private fun doClear() {
+        val command = ClearCommand(holder)
+        command.up()
+
+        recordF.push(command)
+        recordB.forEach {
+            if (it is DrawCommand) {
+                container.remove(it.draw)
+            }
+        }
+        recordB.clear()
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -212,14 +216,15 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                 val flag = state.forwardHolder[++c]
                 if(flag == 1) {
                     val draw = _container[state.forwardHolder[++c]]
-                    attachToCanvas(draw)
+                    doDraw(draw)
                 } else {
-                    clearCanvas()
+                    doClear()
                 }
             }
             for (i in 1..state.backwardSize) {
-                undo()
+                undoHolder()
             }
+            requestInvalidate()
         }
     }
 
