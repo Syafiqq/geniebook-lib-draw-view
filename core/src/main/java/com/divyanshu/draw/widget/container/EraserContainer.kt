@@ -67,7 +67,7 @@ class EraserContainer(override val context: Context, override val drawing: ICanv
     }
 
     override fun assignDraw(draw: IMode, canvas: ICanvas) {
-        if (draw !is PathMode || canvas !== drawing) return
+        if (draw !is PathMode || canvas != drawing) return
 
         attachDrawingTool()
         this.draw = draw

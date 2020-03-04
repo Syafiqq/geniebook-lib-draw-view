@@ -79,7 +79,7 @@ class PenContainer(override val context: Context, override val drawing: ICanvas)
     }
 
     override fun assignDraw(draw: IMode, canvas: ICanvas) {
-        if (draw !is PathMode || canvas !== drawing) return
+        if (draw !is PathMode || canvas != drawing) return
 
         attachDrawingTool()
         this.draw = draw
