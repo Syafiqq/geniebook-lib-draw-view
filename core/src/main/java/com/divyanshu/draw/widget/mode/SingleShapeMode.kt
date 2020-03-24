@@ -2,6 +2,8 @@ package com.divyanshu.draw.widget.mode
 
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.os.Parcel
+import android.os.Parcelable
 import com.divyanshu.draw.widget.contract.DrawingMode
 import com.divyanshu.draw.widget.contract.IMode
 
@@ -17,6 +19,16 @@ open class SingleShapeMode(override val mode: DrawingMode): IMode {
         private set
     protected var initY = 0F
         private set
+
+    constructor(parcel: Parcel) : this(DrawingMode.valueOf(parcel.readString() ?: "")) {
+        color = parcel.readInt()
+        strokeWidth = parcel.readFloat()
+        initX = parcel.readFloat()
+        initY = parcel.readFloat()
+        endX = parcel.readFloat()
+        endY = parcel.readFloat()
+    }
+
 
     open fun onFingerDown(x: Float, y: Float) {
         initialPos(x, y)
@@ -48,5 +60,23 @@ open class SingleShapeMode(override val mode: DrawingMode): IMode {
 
     open fun onDraw(canvas: Canvas, paint: Paint) {
         decorate(paint)
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(mode.toString())
+        parcel.writeInt(color)
+        parcel.writeFloat(strokeWidth)
+        parcel.writeFloat(initX)
+        parcel.writeFloat(initY)
+        parcel.writeFloat(endX)
+        parcel.writeFloat(endY)
+    }
+
+    override fun describeContents() = 0
+
+    companion object CREATOR : Parcelable.Creator<SingleShapeMode> {
+        override fun createFromParcel(parcel: Parcel) = SingleShapeMode(parcel)
+
+        override fun newArray(size: Int): Array<SingleShapeMode?> = arrayOfNulls(size)
     }
 }
