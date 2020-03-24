@@ -116,6 +116,14 @@ sealed class ShapeContainer<T: SingleShapeMode>(override val context: Context, o
         }
     }
 
+    inline fun <reified U : T> assignGenericDraw(draw: IMode, canvas: ICanvas) {
+        if (draw !is U || canvas != drawing) return
+
+        attachDrawingTool()
+        this.draw = draw
+        drawing.requestInvalidate()
+    }
+
     interface InteractionListener {
         fun attachComponent(paint: IPaint)
         fun detachComponent()
@@ -124,28 +132,77 @@ sealed class ShapeContainer<T: SingleShapeMode>(override val context: Context, o
 
 class ShapeLineContainer(override val context: Context, override val drawing: ICanvas) : ShapeContainer<LineMode>(context, drawing) {
     override fun instantiateDraw() = LineMode(DrawingMode.SHAPE_LINE)
+    override fun assignDraw(draw: IMode, canvas: ICanvas) {
+        if (draw !is LineMode || canvas != drawing) return
+
+        attachDrawingTool()
+        this.draw = draw
+        drawing.requestInvalidate()
+    }
 }
 
 class SingleHeadArrowContainer(override val context: Context, override val drawing: ICanvas) : ShapeContainer<SingleHeadArrowMode>(context, drawing) {
     override fun instantiateDraw() = SingleHeadArrowMode(DrawingMode.SHAPE_SINGLE_ARROW)
+    override fun assignDraw(draw: IMode, canvas: ICanvas) {
+        if (draw !is SingleHeadArrowMode || canvas != drawing) return
+
+        attachDrawingTool()
+        this.draw = draw
+        drawing.requestInvalidate()
+    }
 }
 
 class DoubleHeadArrowContainer(override val context: Context, override val drawing: ICanvas) : ShapeContainer<DoubleHeadArrowMode>(context, drawing) {
     override fun instantiateDraw() = DoubleHeadArrowMode(DrawingMode.SHAPE_DOUBLE_ARROW)
+    override fun assignDraw(draw: IMode, canvas: ICanvas) {
+        if (draw !is DoubleHeadArrowMode || canvas != drawing) return
+
+        attachDrawingTool()
+        this.draw = draw
+        drawing.requestInvalidate()
+    }
 }
 
 class OutlineRectangleContainer(override val context: Context, override val drawing: ICanvas) : ShapeContainer<OutlineRectangleMode>(context, drawing) {
     override fun instantiateDraw() = OutlineRectangleMode(DrawingMode.SHAPE_OUTLINE_RECTANGLE)
+    override fun assignDraw(draw: IMode, canvas: ICanvas) {
+        if (draw !is OutlineRectangleMode || canvas != drawing) return
+
+        attachDrawingTool()
+        this.draw = draw
+        drawing.requestInvalidate()
+    }
 }
 
 class FilledRectangleContainer(override val context: Context, override val drawing: ICanvas) : ShapeContainer<FilledRectangleMode>(context, drawing) {
     override fun instantiateDraw() = FilledRectangleMode(DrawingMode.SHAPE_FILLED_RECTANGLE)
+    override fun assignDraw(draw: IMode, canvas: ICanvas) {
+        if (draw !is FilledRectangleMode || canvas != drawing) return
+
+        attachDrawingTool()
+        this.draw = draw
+        drawing.requestInvalidate()
+    }
 }
 
 class OutlineEllipseContainer(override val context: Context, override val drawing: ICanvas) : ShapeContainer<OutlineEllipseMode>(context, drawing) {
     override fun instantiateDraw() = OutlineEllipseMode(DrawingMode.SHAPE_OUTLINE_ELLIPSE)
+    override fun assignDraw(draw: IMode, canvas: ICanvas) {
+        if (draw !is OutlineEllipseMode || canvas != drawing) return
+
+        attachDrawingTool()
+        this.draw = draw
+        drawing.requestInvalidate()
+    }
 }
 
 class FilledEllipseContainer(override val context: Context, override val drawing: ICanvas) : ShapeContainer<FilledEllipseMode>(context, drawing) {
     override fun instantiateDraw() = FilledEllipseMode(DrawingMode.SHAPE_FILLED_ELLIPSE)
+    override fun assignDraw(draw: IMode, canvas: ICanvas) {
+        if (draw !is FilledEllipseMode || canvas != drawing) return
+
+        attachDrawingTool()
+        this.draw = draw
+        drawing.requestInvalidate()
+    }
 }
