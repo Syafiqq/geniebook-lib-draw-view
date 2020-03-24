@@ -53,6 +53,22 @@ class ImageContainer(override val context: Context, override val drawing: ICanva
         }
     }
 
+    override fun assignDraw(draw: IMode, canvas: ICanvas) {
+        if (draw !is ImageMode || canvas != drawing) return
+
+        if(!isOnRequest) {
+            isOnRequest = true
+            attachDrawingTool()
+            this.draw = draw
+            drawing.requestInvalidate()
+            if(draw.bitmap == null) {
+                listener.requestImage()
+            } else {
+                listener.showCustomTool()
+            }
+        }
+    }
+
     override fun attachDrawingTool() {
         listener.attachComponent(this)
     }
@@ -100,6 +116,7 @@ class ImageContainer(override val context: Context, override val drawing: ICanva
                     updateBitmapDirectly(bitmap)
                     drawing.requestInvalidate()
                 }
+                listener.showCustomTool()
             }
         }
     }
@@ -111,6 +128,7 @@ class ImageContainer(override val context: Context, override val drawing: ICanva
                 updateBitmapDirectly(it)
                 drawing.requestInvalidate()
             }
+            listener.showCustomTool()
         }
     }
 
@@ -139,6 +157,7 @@ class ImageContainer(override val context: Context, override val drawing: ICanva
     interface InteractionListener {
         fun attachComponent(callback: IImageDrawCallback)
         fun requestImage()
+        fun showCustomTool()
         fun detachComponent()
     }
 }

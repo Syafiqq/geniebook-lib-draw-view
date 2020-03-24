@@ -5,6 +5,8 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.os.Parcel
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -19,11 +21,15 @@ import com.divyanshu.draw.widget.impl.command.ClearCommand
 import com.divyanshu.draw.widget.impl.command.DrawCommand
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashSet
+import com.divyanshu.draw.util.UnitConverter.convertToMap
+
 
 class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), ICanvas, ICommandManager {
     override val recordF = Stack<ICommand>()
     override val recordB = Stack<ICommand>()
     private val holder = ArrayList<IMode>()
+    private val container = LinkedHashSet<IMode>()
 
     private val linePath = PenContainer(context, this)
     private val eraserPath = EraserContainer(context, this)
@@ -65,6 +71,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         }
 
     init {
+        isSaveEnabled = true
         val paint = Paint().apply {
             alpha = 0xFF
             color = Color.WHITE
@@ -76,13 +83,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
 
     override fun attachToCanvas(draw: IMode) {
         drawingTool?.destroyDrawingObject()
-
-        val command = DrawCommand(holder, draw)
-        command.up()
-
-        recordF.push(command)
-        recordB.clear()
-
+        doDraw(draw)
         requestInvalidate()
     }
 
@@ -92,34 +93,61 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
 
     fun clearCanvas() {
         if (holder.isEmpty()) return
-
-        val command = ClearCommand(holder)
-        command.up()
-
-        recordF.push(command)
-        recordB.clear()
-
+        doClear()
         requestInvalidate()
     }
 
     fun undo() {
+        doUndo()
+        requestInvalidate()
+    }
+
+    fun redo() {
+        doRedo()
+        requestInvalidate()
+    }
+
+    private fun doUndo() {
         if (recordF.isEmpty()) return
 
         val command = recordF.pop()
         command.down()
         recordB.push(command)
-
-        requestInvalidate()
     }
 
-    fun redo() {
+    private fun doRedo() {
         if (recordB.isEmpty()) return
 
         val command = recordB.pop()
         command.up()
         recordF.push(command)
+    }
 
-        requestInvalidate()
+    private fun doDraw(draw: IMode) {
+        val command = DrawCommand(holder, draw)
+        command.up()
+
+        container.add(draw)
+        recordF.push(command)
+        recordB.forEach {
+            if (it is DrawCommand) {
+                container.remove(it.draw)
+            }
+        }
+        recordB.clear()
+    }
+
+    private fun doClear() {
+        val command = ClearCommand(holder)
+        command.up()
+
+        recordF.push(command)
+        recordB.forEach {
+            if (it is DrawCommand) {
+                container.remove(it.draw)
+            }
+        }
+        recordB.clear()
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -159,6 +187,74 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         return super.performClick()
     }
 
+    override fun onSaveInstanceState(): Parcelable? {
+        val superState = super.onSaveInstanceState() ?: return null
+        val containerMapper = container
+                .toList()
+                .convertToMap({ x -> x }, { _, i -> i })
+        val forwardHolder = LinkedList<Int>()
+            LinkedList<ICommand>()
+                    .apply {
+                        addAll(recordF)
+                        addAll(recordB.reversed())
+                    }
+                    .forEach {
+                        if(it is DrawCommand && containerMapper.containsKey(it.draw)) {
+                            forwardHolder.add(1)
+                            forwardHolder.add(containerMapper[it.draw] ?: -1)
+                        } else {
+                            forwardHolder.add(0)
+                        }
+                    }
+
+        val ss = SavedState(superState)
+        ss.container.addAll(container)
+        ss.forwardHolder.addAll(forwardHolder)
+        ss.backwardSize = recordB.size
+        ss.currentTool = drawingMode?.toString()
+        ss.currentDraw = drawingTool?.draw as Parcelable?
+
+        return ss
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        super.onRestoreInstanceState(state)
+        if(state is SavedState) {
+            container.clear()
+            holder.clear()
+            recordF.clear()
+            recordB.clear()
+            state.container.forEach { p ->
+                if (p is IMode) {
+                    container.add(p)
+                }
+            }
+            val _container = container.toList()
+            var c = -1
+            while ((c + 1) < state.forwardHolder.size) {
+                val flag = state.forwardHolder[++c]
+                if(flag == 1) {
+                    val draw = _container[state.forwardHolder[++c]]
+                    doDraw(draw)
+                } else {
+                    doClear()
+                }
+            }
+            for (i in 1..state.backwardSize) {
+                doUndo()
+            }
+            val currentTool = state.currentTool
+            if(currentTool != null) {
+                drawingMode = DrawingMode.valueOf(currentTool)
+            }
+            val currentDraw = state.currentDraw
+            if(currentDraw is IMode) {
+                drawingTool?.assignDraw(currentDraw, this)
+            }
+            requestInvalidate()
+        }
+    }
+
     fun isBlank(): Boolean {
         return drawingTool !is EraserContainer && drawingTool?.draw == null && holder.size == 0
     }
@@ -169,5 +265,47 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
         canvas.drawColor(Color.TRANSPARENT)
         draw(canvas)
         return bitmap
+    }
+
+    class SavedState: BaseSavedState {
+        val container = LinkedList<Parcelable>()
+        val forwardHolder = LinkedList<Int>()
+        var backwardSize = -1
+        var currentTool: String? = null
+        var currentDraw: Parcelable? = null
+
+        constructor(superState: Parcelable): super(superState)
+        constructor(`in`: Parcel?) : super(`in`) {
+            `in`?.let { storage ->
+                storage.readParcelableArray(ClassLoader.getSystemClassLoader())?.forEach {
+                    container.add(it)
+                }
+                val size = storage.readInt()
+                IntArray(size)
+                        .also { storage.readIntArray(it) }
+                        .forEach { forwardHolder.add(it) }
+                backwardSize = storage.readInt()
+                currentTool = storage.readString()
+                currentDraw = storage.readParcelable(ClassLoader.getSystemClassLoader())
+            }
+        }
+
+        override fun writeToParcel(out: Parcel?, flags: Int) {
+            super.writeToParcel(out, flags)
+            out?.let { storage ->
+                storage.writeParcelableArray(container.toTypedArray(), 0)
+                storage.writeInt(forwardHolder.size)
+                storage.writeIntArray(forwardHolder.toIntArray())
+                storage.writeInt(backwardSize)
+                storage.writeString(currentTool)
+                storage.writeParcelable(currentDraw, 0)
+            }
+        }
+
+        companion object CREATOR: Parcelable.Creator<SavedState> {
+            override fun createFromParcel(source: Parcel?): SavedState = SavedState(source)
+
+            override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
+        }
     }
 }

@@ -3,18 +3,22 @@ package com.divyanshu.draw.widget.mode
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import android.os.Parcel
+import android.os.Parcelable
 import com.divyanshu.draw.widget.contract.DrawingMode
 import com.divyanshu.draw.widget.contract.IMode
 import com.divyanshu.draw.widget.plugin.TextRect
 import kotlin.math.abs
 import kotlin.math.max
 
+private const val SELECT_THRESHOLD = 32
+private const val WIDTH_REDUCER = 32F
+private const val WIDTH_THRESHOLD = 16F
+private const val WIDTH_SCALE_MAX = 30
+
 class TextMode(override val mode: DrawingMode) : IMode {
     private val textRect = TextRect()
     private val dashedPath = Path()
-    private val selThreshold = 32
-    private val widthReducer = 32F
-    private val widthThreshold = 16F
 
     var drawBorder = false
 
@@ -33,10 +37,25 @@ class TextMode(override val mode: DrawingMode) : IMode {
     private var difY = 0F
     private var pointerId = -1
 
-    private var widthScale:Int = 0
-    private val widthScaleMax = 30
+    private var widthScale = 0
     private var rectWidth = 200F
     private var rectHeight = 0F
+
+    constructor(parcel: Parcel) : this(DrawingMode.valueOf(parcel.readString() ?: "")) {
+        drawBorder = parcel.readByte() != 0.toByte()
+        color = parcel.readInt()
+        textSize = parcel.readFloat()
+        text = parcel.readString()
+        isInBound = parcel.readByte() != 0.toByte()
+        curX = parcel.readFloat()
+        curY = parcel.readFloat()
+        difX = parcel.readFloat()
+        difY = parcel.readFloat()
+        pointerId = parcel.readInt()
+        widthScale = parcel.readInt()
+        rectWidth = parcel.readFloat()
+        rectHeight = parcel.readFloat()
+    }
 
     fun onFingerDown(x: Float, y: Float, pointer: Int) {
         isInBound = isInBound(x, y)
@@ -76,8 +95,8 @@ class TextMode(override val mode: DrawingMode) : IMode {
     }
 
     private fun isInBound(x: Float, y: Float): Boolean {
-        return x > (curX - selThreshold) && x < (curX + rectWidth + selThreshold) &&
-                y > (curY - selThreshold) && y < (curY + rectHeight + selThreshold)
+        return x > (curX - SELECT_THRESHOLD) && x < (curX + rectWidth + SELECT_THRESHOLD) &&
+                y > (curY - SELECT_THRESHOLD) && y < (curY + rectHeight + SELECT_THRESHOLD)
     }
 
     private fun decorate(paint: Paint) {
@@ -114,7 +133,7 @@ class TextMode(override val mode: DrawingMode) : IMode {
                     rectHeight = h.toFloat()
                     break
                 }
-                rectWidth += widthReducer + 8
+                rectWidth += WIDTH_REDUCER + 8
             }
         }
     }
@@ -122,9 +141,9 @@ class TextMode(override val mode: DrawingMode) : IMode {
     fun textWidthIncrease(paint: Paint) {
         val _scale = widthScale + 1
         when {
-            abs(_scale) > widthScaleMax -> return
+            abs(_scale) > WIDTH_SCALE_MAX -> return
             else -> {
-                rectWidth += widthReducer
+                rectWidth += WIDTH_REDUCER
                 ++widthScale
                 updateTextDimension(paint)
             }
@@ -133,9 +152,9 @@ class TextMode(override val mode: DrawingMode) : IMode {
 
     fun textWidthDecrease(paint: Paint) {
         when {
-            rectWidth - widthReducer < max(textSize, widthThreshold) -> return
+            rectWidth - WIDTH_REDUCER < max(textSize, WIDTH_THRESHOLD) -> return
             else -> {
-                rectWidth -= widthReducer
+                rectWidth -= WIDTH_REDUCER
                 --widthScale
                 updateTextDimension(paint)
             }
@@ -163,5 +182,30 @@ class TextMode(override val mode: DrawingMode) : IMode {
             lineTo(curX, curY)
             close()
         }
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(mode.toString())
+        parcel.writeByte(if (drawBorder) 1 else 0)
+        parcel.writeInt(color)
+        parcel.writeFloat(textSize)
+        parcel.writeString(text)
+        parcel.writeByte(if (isInBound) 1 else 0)
+        parcel.writeFloat(curX)
+        parcel.writeFloat(curY)
+        parcel.writeFloat(difX)
+        parcel.writeFloat(difY)
+        parcel.writeInt(pointerId)
+        parcel.writeInt(widthScale)
+        parcel.writeFloat(rectWidth)
+        parcel.writeFloat(rectHeight)
+    }
+
+    override fun describeContents() = 0
+
+    companion object CREATOR : Parcelable.Creator<TextMode> {
+        override fun createFromParcel(parcel: Parcel) = TextMode(parcel)
+
+        override fun newArray(size: Int): Array<TextMode?> = arrayOfNulls(size)
     }
 }

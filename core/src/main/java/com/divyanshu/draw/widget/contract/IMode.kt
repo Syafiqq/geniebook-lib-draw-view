@@ -1,5 +1,7 @@
 package com.divyanshu.draw.widget.contract
 
-interface IMode{
+import android.os.Parcelable
+
+interface IMode: Parcelable {
     val mode: DrawingMode
 }
