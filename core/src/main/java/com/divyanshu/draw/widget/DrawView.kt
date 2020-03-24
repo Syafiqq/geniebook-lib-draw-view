@@ -8,10 +8,7 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import com.divyanshu.draw.widget.container.EraserContainer
-import com.divyanshu.draw.widget.container.ImageContainer
-import com.divyanshu.draw.widget.container.PenContainer
-import com.divyanshu.draw.widget.container.TextContainer
+import com.divyanshu.draw.widget.container.*
 import com.divyanshu.draw.widget.contract.DrawingMode
 import com.divyanshu.draw.widget.contract.ICanvas
 import com.divyanshu.draw.widget.contract.IDrawingContainer
@@ -32,6 +29,13 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
     private val eraserPath = EraserContainer(context, this)
     private val textContainer = TextContainer(context, this)
     private val imageContainer = ImageContainer(context, this)
+    private val shapeLineContainer = ShapeLineContainer(context, this)
+    private val singleArrowContainer = SingleHeadArrowContainer(context, this)
+    private val doubleArrowContainer = DoubleHeadArrowContainer(context, this)
+    private val outlineRectContainer = OutlineRectangleContainer(context, this)
+    private val filledRectContainer = FilledRectangleContainer(context, this)
+    private val outlineEllipseContainer = OutlineEllipseContainer(context, this)
+    private val filledEllipseContainer = FilledEllipseContainer(context, this)
 
     private var drawingTool: IDrawingContainer<*>? = null
     private var _drawingMode: DrawingMode? = null
@@ -48,6 +52,13 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                 DrawingMode.ERASE -> eraserPath
                 DrawingMode.TEXT -> textContainer
                 DrawingMode.IMAGE -> imageContainer
+                DrawingMode.SHAPE_LINE -> shapeLineContainer
+                DrawingMode.SHAPE_SINGLE_ARROW -> singleArrowContainer
+                DrawingMode.SHAPE_DOUBLE_ARROW -> doubleArrowContainer
+                DrawingMode.SHAPE_OUTLINE_RECTANGLE -> outlineRectContainer
+                DrawingMode.SHAPE_FILLED_RECTANGLE -> filledRectContainer
+                DrawingMode.SHAPE_OUTLINE_ELLIPSE -> outlineEllipseContainer
+                DrawingMode.SHAPE_FILLED_ELLIPSE -> filledEllipseContainer
                 else -> null
             }
             drawingTool?.attachDrawingTool()
@@ -120,7 +131,13 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs), IC
                 DrawingMode.ERASE -> eraserPath.onDraw(canvas, it)
                 DrawingMode.TEXT -> textContainer.onDraw(canvas, it)
                 DrawingMode.IMAGE -> imageContainer.onDraw(canvas, it)
-                else -> {}
+                DrawingMode.SHAPE_LINE -> shapeLineContainer.onDraw(canvas, it)
+                DrawingMode.SHAPE_SINGLE_ARROW -> singleArrowContainer.onDraw(canvas, it)
+                DrawingMode.SHAPE_DOUBLE_ARROW -> doubleArrowContainer.onDraw(canvas, it)
+                DrawingMode.SHAPE_OUTLINE_RECTANGLE -> outlineRectContainer.onDraw(canvas, it)
+                DrawingMode.SHAPE_FILLED_RECTANGLE -> filledRectContainer.onDraw(canvas, it)
+                DrawingMode.SHAPE_OUTLINE_ELLIPSE -> outlineEllipseContainer.onDraw(canvas, it)
+                DrawingMode.SHAPE_FILLED_ELLIPSE -> filledEllipseContainer.onDraw(canvas, it)
             }
         }
 
