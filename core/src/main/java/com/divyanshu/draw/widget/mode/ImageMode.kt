@@ -1,13 +1,16 @@
 package com.divyanshu.draw.widget.mode
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Rect
+import android.content.Context
+import android.graphics.*
+import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
+import android.util.Log
 import com.divyanshu.draw.widget.contract.DrawingMode
 import com.divyanshu.draw.widget.contract.IMode
+import java.io.File
+import java.io.FileOutputStream
+import java.lang.Exception
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -19,6 +22,7 @@ private const val SCALE_MAX = 10
 class ImageMode(override val mode: DrawingMode) : IMode {
     var bitmap: Bitmap? = null
     private var rectScaled: Rect = Rect()
+    private var tempUri : Uri? = null
 
     private var scale: Int = 0
     private var isInBound = false
@@ -32,7 +36,7 @@ class ImageMode(override val mode: DrawingMode) : IMode {
     private var pointerId = -1
 
     constructor(parcel: Parcel) : this(DrawingMode.valueOf(parcel.readString() ?: "")) {
-        bitmap = parcel.readParcelable(Bitmap::class.java.classLoader)
+        tempUri = parcel.readParcelable(Uri::class.java.classLoader)
         (parcel.readParcelable(Rect::class.java.classLoader) as Rect?)?.let {
             with(rectScaled) {
                 top = it.top
@@ -50,6 +54,13 @@ class ImageMode(override val mode: DrawingMode) : IMode {
         scaledX = parcel.readInt()
         scaledY = parcel.readInt()
         pointerId = parcel.readInt()
+
+        //load bitmap
+        try {
+            Log.d("TEST_PARCEL", "Sukses")
+            BitmapFactory.decodeFile(tempUri?.path ?: "")
+        }
+        catch (e:Exception){}
     }
 
     fun onFingerDown(x: Float, y: Float, pointer: Int) {
@@ -97,9 +108,25 @@ class ImageMode(override val mode: DrawingMode) : IMode {
                 y > (r.top - SELECT_THRESHOLD) && y < (r.bottom + SELECT_THRESHOLD)
     }
 
-    fun updateBitmapDirectly(image: Bitmap) {
+    fun updateBitmapDirectly(image: Bitmap, context: Context) {
         bitmap = image
         updateRectScale()
+        saveImageToTemp(image, context)
+    }
+
+    private fun saveImageToTemp(image:Bitmap, context: Context){
+        try{
+            val cache = context.cacheDir
+            val folder = File(cache, "drawing_cache")
+            if(!folder.exists()) folder.mkdir()
+            val file = File(folder, "cache_${System.currentTimeMillis()}_.jpg")
+            val stream = FileOutputStream(file)
+            image.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            tempUri = Uri.fromFile(file)
+        }
+        catch (e:Exception){
+            e.printStackTrace()
+        }
     }
 
     private fun updateRectScale() {
@@ -150,7 +177,7 @@ class ImageMode(override val mode: DrawingMode) : IMode {
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(mode.toString())
-        parcel.writeParcelable(bitmap, flags)
+        parcel.writeParcelable(tempUri, flags)
         parcel.writeParcelable(rectScaled, flags)
         parcel.writeInt(scale)
         parcel.writeByte(if (isInBound) 1 else 0)
