@@ -1,4 +1,4 @@
-ext.ARTIFACT_VERSION="1.0.5-SNAPSHOT"
+ext.ARTIFACT_VERSION="1.0.6-SNAPSHOT"
 ext.ARTIFACT_NAME="draw-view"
 ext.ARTIFACT_PACKAGE="com.geniebook.androidlib"
 ext.ARTIFACT_PACKAGING="aar"
