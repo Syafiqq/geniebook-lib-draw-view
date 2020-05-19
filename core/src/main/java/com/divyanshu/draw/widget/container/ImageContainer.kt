@@ -113,7 +113,7 @@ class ImageContainer(override val context: Context, override val drawing: ICanva
 
                 createDrawingObject(x, y)
                 draw?.run {
-                    updateBitmapDirectly(bitmap)
+                    updateBitmapDirectly(bitmap, context)
                     drawing.requestInvalidate()
                 }
                 listener.showCustomTool()
@@ -125,7 +125,7 @@ class ImageContainer(override val context: Context, override val drawing: ICanva
         draw?.run {
             val bitmap = ImageUtil.decodeSampledBitmapFromStream(image, sizeThreshold, sizeThreshold)
             bitmap?.let {
-                updateBitmapDirectly(it)
+                updateBitmapDirectly(it, context)
                 drawing.requestInvalidate()
             }
             listener.showCustomTool()
